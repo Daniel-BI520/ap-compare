@@ -652,8 +652,11 @@ tr.vendor-row-ruijie td:first-child { border-left: 3px solid #059669; }
                 <div class="toggle-switch" id="togIot" onclick="toggleSwitch('togIot', 'needIot');runRecommend()"></div>
                 <span class="text-xs text-slate-600">需要IoT扩展</span>
             </div>
-            <div class="ml-auto">
-                <button onclick="resetForm()" class="text-xs text-slate-500 hover:text-slate-700 mr-3">重置条件</button>
+            <div class="ml-auto flex items-center gap-2">
+                <button onclick="quickRecommend()" class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-emerald-600 hover:to-emerald-700 transition shadow-sm">
+                    ⚡ 快速推荐
+                </button>
+                <button onclick="resetForm()" class="text-xs text-slate-500 hover:text-slate-700">重置条件</button>
                 <button onclick="runRecommend()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition shadow-sm">
                     🔍 开始推荐
                 </button>
@@ -668,13 +671,33 @@ tr.vendor-row-ruijie td:first-child { border-left: 3px solid #059669; }
             <textarea id="nlpInput" class="nlp-textarea" placeholder="例如：&#10;我需要一款适合50人办公的室内放装AP，要Wi-Fi 6，支持PoE供电&#10;高密场馆用的室外AP，200人同时接入，要Wi-Fi 7的，需要光口&#10;酒店客房面板AP，每房间支持30人，要带下行网口"></textarea>
             <div class="text-xs text-slate-500 mt-2">💡 提示：可以描述场景、人数、代际、速率、功能要求等</div>
         </div>
-        <div class="flex items-center gap-3 mb-3">
+        <div class="flex items-center gap-3 mb-3 flex-wrap">
             <button onclick="parseNLP()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-purple-700 transition shadow-sm">
                 🧠 智能解析
             </button>
             <button onclick="applyNLPAndRecommend()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition shadow-sm">
                 直接推荐
             </button>
+            <button onclick="quickRecommend()" class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-emerald-600 hover:to-emerald-700 transition shadow-sm">
+                ⚡ 默认场景推荐
+            </button>
+        </div>
+        <div class="mb-3">
+            <div class="text-xs text-slate-500 mb-2">💡 常用场景一键推荐：</div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="quickRecommend()" class="px-3 py-1 text-xs bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition border border-blue-200">
+                    办公放装(100人/Wi-Fi6/1G)
+                </button>
+                <button onclick="quickRecHighDensity()" class="px-3 py-1 text-xs bg-purple-50 text-purple-700 rounded-full hover:bg-purple-100 transition border border-purple-200">
+                    高密场馆(300人/Wi-Fi6/5G)
+                </button>
+                <button onclick="quickRecOutdoor()" class="px-3 py-1 text-xs bg-amber-50 text-amber-700 rounded-full hover:bg-amber-100 transition border border-amber-200">
+                    室外覆盖(100人/Wi-Fi6)
+                </button>
+                <button onclick="quickRecWallPlate()" class="px-3 py-1 text-xs bg-emerald-50 text-emerald-700 rounded-full hover:bg-emerald-100 transition border border-emerald-200">
+                    酒店面板(30人/Wi-Fi6)
+                </button>
+            </div>
         </div>
         <div id="nlpParsed" class="hidden bg-slate-50 rounded-lg p-3 border border-slate-200">
             <div class="text-xs font-medium text-slate-600 mb-2">解析结果（可点击修改）：</div>
@@ -884,7 +907,7 @@ let showAllRecs = false;
 // ============== INIT ==============
 function init() {
     document.getElementById('updateTime').innerText = formatDate(META.generated_at);
-    runRecommend();
+    quickRecommend();
     renderBrowseTable();
 }
 
@@ -1100,6 +1123,85 @@ function generateMatchReason(product, req, score) {
     if (product.has_smart_antenna) reasons.push('智能天线');
     if (product.mlo_support) reasons.push('支持MLO');
     return reasons.slice(0, 3).join(' · ');
+}
+
+// ============== QUICK RECOMMEND (default scenario) ==============
+function quickRecommend() {
+    // 默认场景：室内放装 + Wi-Fi 6 + 100用户 + 1000Mbps速率，其他不限
+    document.getElementById('f_formFactor').value = 'indoor-ceiling';
+    document.getElementById('f_wifiGen').value = 'Wi-Fi 6';
+    document.getElementById('f_users').value = 100;
+    document.getElementById('f_usersVal').innerText = '100';
+    document.getElementById('f_rate').value = 1000;
+    document.getElementById('f_poe').value = '';
+    document.getElementById('f_uplink').value = '';
+    document.getElementById('f_tier').value = '';
+    
+    // 重置厂商和开关
+    selectedVendors.clear();
+    ['huawei','h3c','ruijie'].forEach(v => document.getElementById('chip_v_'+v).classList.remove('active'));
+    need6ghz = needOptical = needBt = needIot = false;
+    ['tog6ghz','togOptical','togBt','togIot'].forEach(id => document.getElementById(id).classList.remove('active'));
+    
+    // 切换到表单tab
+    switchTab('form');
+    
+    // 执行推荐
+    runRecommend();
+}
+
+function quickRecHighDensity() {
+    document.getElementById('f_formFactor').value = 'indoor-high-density';
+    document.getElementById('f_wifiGen').value = 'Wi-Fi 6';
+    document.getElementById('f_users').value = 300;
+    document.getElementById('f_usersVal').innerText = '300';
+    document.getElementById('f_rate').value = 5000;
+    document.getElementById('f_poe').value = '';
+    document.getElementById('f_uplink').value = '';
+    document.getElementById('f_tier').value = '';
+    selectedVendors.clear();
+    ['huawei','h3c','ruijie'].forEach(v => document.getElementById('chip_v_'+v).classList.remove('active'));
+    need6ghz = needOptical = needBt = needIot = false;
+    ['tog6ghz','togOptical','togBt','togIot'].forEach(id => document.getElementById(id).classList.remove('active'));
+    switchTab('form');
+    runRecommend();
+    document.getElementById('recommend').scrollIntoView({ behavior: 'smooth' });
+}
+
+function quickRecOutdoor() {
+    document.getElementById('f_formFactor').value = 'outdoor';
+    document.getElementById('f_wifiGen').value = 'Wi-Fi 6';
+    document.getElementById('f_users').value = 100;
+    document.getElementById('f_usersVal').innerText = '100';
+    document.getElementById('f_rate').value = 1000;
+    document.getElementById('f_poe').value = '';
+    document.getElementById('f_uplink').value = '';
+    document.getElementById('f_tier').value = '';
+    selectedVendors.clear();
+    ['huawei','h3c','ruijie'].forEach(v => document.getElementById('chip_v_'+v).classList.remove('active'));
+    need6ghz = needOptical = needBt = needIot = false;
+    ['tog6ghz','togOptical','togBt','togIot'].forEach(id => document.getElementById(id).classList.remove('active'));
+    switchTab('form');
+    runRecommend();
+    document.getElementById('recommend').scrollIntoView({ behavior: 'smooth' });
+}
+
+function quickRecWallPlate() {
+    document.getElementById('f_formFactor').value = 'wall-plate';
+    document.getElementById('f_wifiGen').value = 'Wi-Fi 6';
+    document.getElementById('f_users').value = 30;
+    document.getElementById('f_usersVal').innerText = '30';
+    document.getElementById('f_rate').value = 1000;
+    document.getElementById('f_poe').value = '';
+    document.getElementById('f_uplink').value = '';
+    document.getElementById('f_tier').value = '';
+    selectedVendors.clear();
+    ['huawei','h3c','ruijie'].forEach(v => document.getElementById('chip_v_'+v).classList.remove('active'));
+    need6ghz = needOptical = needBt = needIot = false;
+    ['tog6ghz','togOptical','togBt','togIot'].forEach(id => document.getElementById(id).classList.remove('active'));
+    switchTab('form');
+    runRecommend();
+    document.getElementById('recommend').scrollIntoView({ behavior: 'smooth' });
 }
 
 function runRecommend() {
