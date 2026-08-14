@@ -71,7 +71,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-8776-x7thp-t",
@@ -133,7 +135,9 @@
       "status": "active",
       "release_date": "2024-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-8771-x1t",
@@ -194,7 +198,9 @@
       "status": "active",
       "release_date": "2024-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-8760-x1-pro",
@@ -256,7 +262,9 @@
       "status": "active",
       "release_date": "2021-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-8761-x1",
@@ -315,7 +323,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-6776-x7th",
@@ -375,7 +385,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-6776-x6h",
@@ -435,7 +447,9 @@
       "status": "active",
       "release_date": "2024-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-6776-x6eth",
@@ -494,7 +508,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-6776-57t",
@@ -553,7 +569,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-6776-56tp",
@@ -612,7 +630,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-6760-x1",
@@ -672,7 +692,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-6761-21",
@@ -733,7 +755,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-6761-21t",
@@ -792,7 +816,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-6761-22t",
@@ -852,7 +878,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5776-57t",
@@ -912,7 +940,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5776-26",
@@ -972,7 +1002,9 @@
       "status": "active",
       "release_date": "2024-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5773-21",
@@ -1030,7 +1062,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5761-21",
@@ -1090,7 +1124,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5760-51",
@@ -1149,7 +1185,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5761-12",
@@ -1208,7 +1246,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5762-12",
@@ -1267,7 +1307,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5773-25hw",
@@ -1326,7 +1368,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-5773-23hw",
@@ -1385,7 +1429,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-5773-21hw",
@@ -1442,7 +1488,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 0,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-5762-17w",
@@ -1500,7 +1548,9 @@
       "status": "active",
       "release_date": "2021-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-5761-12w",
@@ -1558,7 +1608,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "huawei_airengine-8776i-x6ethp-t",
@@ -1619,7 +1671,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-8760r-x1",
@@ -1679,7 +1733,9 @@
       "status": "active",
       "release_date": "2021-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-6776i-x7th",
@@ -1739,7 +1795,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-6760r-51",
@@ -1799,7 +1857,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-5776i-x6h",
@@ -1858,7 +1918,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-5761r-11",
@@ -1917,7 +1979,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-9700d-m1",
@@ -1978,7 +2042,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 0,
+      "uplink_optical_count": 4
     },
     {
       "id": "huawei_airengine-9700d-s",
@@ -2038,7 +2104,9 @@
       "status": "active",
       "release_date": "2022-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "huawei_airengine-5761-11wd",
@@ -2095,7 +2163,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "华为企业业务官网"
+      "data_source": "华为企业业务官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa7638",
@@ -2155,7 +2225,9 @@
       "status": "active",
       "release_date": "2024-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7538",
@@ -2215,7 +2287,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7338-hi",
@@ -2274,7 +2348,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7330i",
@@ -2334,7 +2410,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7320i",
@@ -2394,7 +2472,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7230",
@@ -2452,7 +2532,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa7220-hi",
@@ -2510,7 +2592,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6638",
@@ -2570,7 +2654,9 @@
       "status": "active",
       "release_date": "2020-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 3,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6628",
@@ -2629,7 +2715,9 @@
       "status": "active",
       "release_date": "2020-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6530i",
@@ -2689,7 +2777,9 @@
       "status": "active",
       "release_date": "2020-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6528i",
@@ -2748,7 +2838,9 @@
       "status": "active",
       "release_date": "2020-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6520",
@@ -2806,7 +2898,9 @@
       "status": "active",
       "release_date": "2020-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa6330",
@@ -2864,7 +2958,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6320",
@@ -2922,7 +3018,9 @@
       "status": "active",
       "release_date": "2020-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa7322h-hi",
@@ -2980,7 +3078,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6520h",
@@ -3039,7 +3139,9 @@
       "status": "active",
       "release_date": "2020-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6320h",
@@ -3096,7 +3198,9 @@
       "status": "active",
       "release_date": "2020-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa7630x",
@@ -3157,7 +3261,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7330x",
@@ -3217,7 +3323,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa6630x",
@@ -3277,7 +3385,9 @@
       "status": "active",
       "release_date": "2021-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6620x",
@@ -3337,7 +3447,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6520x-e",
@@ -3396,7 +3508,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wtu720",
@@ -3456,7 +3570,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap9861-r",
@@ -3516,7 +3632,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap9850-r",
@@ -3576,7 +3694,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap9751-r",
@@ -3636,7 +3756,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap9520-rdx",
@@ -3696,7 +3818,9 @@
       "status": "active",
       "release_date": "2025-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap9250-r",
@@ -3755,7 +3879,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap9220r",
@@ -3817,7 +3943,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap9220-v2",
@@ -3876,7 +4004,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap880-ar",
@@ -3936,7 +4066,9 @@
       "status": "active",
       "release_date": "2021-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap850-ar",
@@ -3995,7 +4127,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap840-i",
@@ -4054,7 +4188,9 @@
       "status": "active",
       "release_date": "2021-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap820-i",
@@ -4112,7 +4248,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap820c",
@@ -4170,7 +4308,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap810-i",
@@ -4228,7 +4368,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap6981",
@@ -4289,7 +4431,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap680-ar",
@@ -4349,7 +4493,9 @@
       "status": "active",
       "release_date": "2021-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 2
     },
     {
       "id": "ruijie_rg-ap680-io",
@@ -4408,7 +4554,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap680c",
@@ -4468,7 +4616,9 @@
       "status": "active",
       "release_date": "2021-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap680-a",
@@ -4528,7 +4678,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap1920-v2",
@@ -4587,7 +4739,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap180-i",
@@ -4645,7 +4799,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap180-v3",
@@ -4702,7 +4858,9 @@
       "status": "active",
       "release_date": "2021-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-apd4930",
@@ -4762,7 +4920,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 3,
+      "uplink_optical_count": 2
     },
     {
       "id": "ruijie_rg-am5532",
@@ -4822,7 +4982,9 @@
       "status": "active",
       "release_date": "2021-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 4,
+      "uplink_optical_count": 4
     },
     {
       "id": "ruijie_rg-map852",
@@ -4879,7 +5041,9 @@
       "status": "active",
       "release_date": "2021-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa7636",
@@ -4938,7 +5102,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7539",
@@ -4997,7 +5163,9 @@
       "status": "active",
       "release_date": "2024-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa7232",
@@ -5055,7 +5223,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa7222f",
@@ -5113,7 +5283,9 @@
       "status": "active",
       "release_date": "2025-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6636",
@@ -5172,7 +5344,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 3,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6638i",
@@ -5231,7 +5405,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa6526",
@@ -5289,7 +5465,9 @@
       "status": "active",
       "release_date": "2020-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6522",
@@ -5347,7 +5525,9 @@
       "status": "active",
       "release_date": "2020-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6520-hi",
@@ -5405,7 +5585,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6338-hi",
@@ -5463,7 +5645,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6120",
@@ -5522,7 +5706,9 @@
       "status": "active",
       "release_date": "2021-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa7220x",
@@ -5581,7 +5767,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "h3c_wa6320x-g",
@@ -5639,7 +5827,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6526h",
@@ -5697,7 +5887,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "h3c_wa6322h-hi",
@@ -5754,7 +5946,9 @@
       "status": "active",
       "release_date": "2021-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "新华三官网"
+      "data_source": "新华三官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap850-i",
@@ -5814,7 +6008,9 @@
       "status": "active",
       "release_date": "2020-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap850-tr",
@@ -5874,7 +6070,9 @@
       "status": "active",
       "release_date": "2021-Q2",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap820-ar",
@@ -5932,7 +6130,9 @@
       "status": "active",
       "release_date": "2021-Q3",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap180-l-v3",
@@ -5989,7 +6189,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap680-cd",
@@ -6048,7 +6250,9 @@
       "status": "active",
       "release_date": "2021-Q4",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 0
     },
     {
       "id": "ruijie_rg-ap6920-d",
@@ -6108,7 +6312,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-ap7176-r",
@@ -6167,7 +6373,9 @@
       "status": "active",
       "release_date": "2025-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 1,
+      "uplink_optical_count": 1
     },
     {
       "id": "ruijie_rg-am5528-es",
@@ -6227,7 +6435,9 @@
       "status": "active",
       "release_date": "2022-Q1",
       "last_updated": "2026-08-14T12:00:00+08:00",
-      "data_source": "锐捷网络官网"
+      "data_source": "锐捷网络官网",
+      "uplink_electrical_count": 2,
+      "uplink_optical_count": 2
     }
   ]
 }

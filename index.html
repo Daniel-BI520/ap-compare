@@ -1317,10 +1317,14 @@ function showMoreRecs() {
 }
 
 function formatUplink(p) {
-    const speedMap = { 1000: 'GE', 2500: '2.5G', 5000: '5G', 10000: '10G' };
+    const speedMap = { 1000: 'GE', 2500: '2.5GE', 5000: '5GE', 10000: '10GE' };
     const speed = speedMap[p.uplink_port_speed] || (p.uplink_port_speed + 'Mbps');
-    const optical = p.has_optical_uplink ? ' + 光口' : '';
-    return `${speed} × ${p.uplink_port_count}${optical}`;
+    const elec = p.uplink_electrical_count || 0;
+    const opt = p.uplink_optical_count || 0;
+    const parts = [];
+    if (elec > 0) parts.push(elec + '×' + speed + '电');
+    if (opt > 0) parts.push(opt + '×' + speed + '光');
+    return parts.join(' + ') || (speed + '×' + (p.uplink_port_count || 0));
 }
 
 // ============== NLP PARSING ==============
@@ -1494,8 +1498,7 @@ function renderBrowseTable() {
         if (p.is_new) badges.push('<span class="badge badge-new">新品</span>');
         if (p.is_hot) badges.push('<span class="badge badge-hot">热门</span>');
         const rateGbps = p.max_rate_mbps >= 1000 ? (p.max_rate_mbps/1000).toFixed(p.max_rate_mbps >= 10000 ? 1 : (p.max_rate_mbps % 1000 === 0 ? 0 : 2)) + 'G' : p.max_rate_mbps + 'M';
-        const uplinkSpeed = p.uplink_port_speed >= 1000 ? (p.uplink_port_speed/1000) + 'G' : p.uplink_port_speed + 'M';
-        const optical = p.has_optical_uplink ? ' +光' : '';
+
 
         return `
         <tr class="vendor-row-${p.vendor} ${compareList.includes(p.id) ? 'selected' : ''}">
@@ -1508,7 +1511,7 @@ function renderBrowseTable() {
             <td class="font-mono text-xs">${rateGbps}</td>
             <td class="text-center">${p.spatial_streams_5g}</td>
             <td class="text-center">${p.max_users}</td>
-            <td class="text-xs">${uplinkSpeed}×${p.uplink_port_count}${optical}</td>
+            <td class="text-xs">${formatUplink(p)}</td>
             <td class="text-xs">${p.poe_support === 'none' ? 'DC' : p.poe_support.replace('802.3','')}</td>
             <td>${badges.join(' ')}</td>
             <td class="text-center">
