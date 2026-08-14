@@ -592,7 +592,7 @@ tr.vendor-row-ruijie td:first-child { border-left: 3px solid #059669; }
                 <input type="range" id="f_users" min="10" max="1000" value="100" step="10" oninput="document.getElementById('f_usersVal').innerText=this.value;runRecommend()">
             </div>
             <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1.5">速率要求 (Mbps)</label>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">整机最大吞吐性能 (Mbps)</label>
                 <input type="number" id="f_rate" class="form-input" placeholder="如 1000/3000/10000" oninput="runRecommend()">
             </div>
             <div>
@@ -746,7 +746,7 @@ tr.vendor-row-ruijie td:first-child { border-left: 3px solid #059669; }
                 <div class="flex gap-1">
                     <span class="chip active text-xs" id="b_v_all" onclick="browseVendor('all')">全部</span>
                     <span class="chip text-xs" id="b_v_huawei" onclick="setBrowseVendor('huawei')">华为</span>
-                    <span class="chip text-xs" id="b_v_h3c" onclick="browseVendor('h3c')">H3C</span>
+                    <span class="chip text-xs" id="b_v_h3c" onclick="setBrowseVendor('h3c')">H3C</span>
                     <span class="chip text-xs" id="b_v_ruijie" onclick="setBrowseVendor('ruijie')">锐捷</span>
                 </div>
             </div>
