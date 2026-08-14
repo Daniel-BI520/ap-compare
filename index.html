@@ -745,9 +745,9 @@ tr.vendor-row-ruijie td:first-child { border-left: 3px solid #059669; }
                 <span class="text-xs text-slate-600">厂商：</span>
                 <div class="flex gap-1">
                     <span class="chip active text-xs" id="b_v_all" onclick="browseVendor('all')">全部</span>
-                    <span class="chip text-xs" id="b_v_huawei" onclick="browseVendor('huawei')">华为</span>
+                    <span class="chip text-xs" id="b_v_huawei" onclick="setBrowseVendor('huawei')">华为</span>
                     <span class="chip text-xs" id="b_v_h3c" onclick="browseVendor('h3c')">H3C</span>
-                    <span class="chip text-xs" id="b_v_ruijie" onclick="browseVendor('ruijie')">锐捷</span>
+                    <span class="chip text-xs" id="b_v_ruijie" onclick="setBrowseVendor('ruijie')">锐捷</span>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1424,7 +1424,7 @@ function extractParams(text) {
 }
 
 // ============== BROWSE TABLE ==============
-function browseVendor(vendor) {
+function setBrowseVendor(vendor) {
     browseVendor = vendor;
     ['all','huawei','h3c','ruijie'].forEach(v => {
         document.getElementById('b_v_' + v).classList.toggle('active', v === vendor);
