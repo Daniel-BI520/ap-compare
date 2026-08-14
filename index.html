@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三厂商企业级AP横向对比工具 | 华为/H3C/锐捷智能匹配</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 200px, #f1f5f9 200px, #f1f5f9 100%);
+    min-height: 100vh;
+    color: #1e293b;
+}
+
+/* Vendor colors */
+.vendor-huawei { --vendor-color: #dc2626; --vendor-bg: #fef2f2; --vendor-border: #fecaca; }
+.vendor-h3c    { --vendor-color: #2563eb; --vendor-bg: #eff6ff; --vendor-border: #bfdbfe; }
+.vendor-ruijie { --vendor-color: #059669; --vendor-bg: #ecfdf5; --vendor-border: #a7f3d0; }
+
+/* Header gradient */
+.hero-gradient {
+    background: linear-gradient(135deg, #0c1a3a 0%, #1e3a8a 50%, #2563eb 100%);
+}
+
+/* Card hover effects */
+.rec-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.rec-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* Score ring */
+.score-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+    position: relative;
+}
+
+/* Tab styles */
+.tab-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tab-btn:hover { color: #3b82f6; }
+.tab-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.toggle-switch.active { background: #2563eb; }
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch.active::after { left: 22px; }
+
+/* Chip / pill */
+.chip {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #cbd5e1;
+    background: white;
+    color: #475569;
+    transition: all 0.15s;
+    user-select: none;
+    white-space: nowrap;
+}
+.chip:hover { border-color: #3b82f6; color: #3b82f6; }
+.chip.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+/* Input styling */
+.form-input, .form-select {
+    width: 100%;
+    padding: 7px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: white;
+}
+.form-input:focus, .form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+/* Badge */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.badge-hot { background: #fef3c7; color: #b45309; }
+.badge-new { background: #dbeafe; color: #1d4ed8; }
+
+/* Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+    background: white;
+    border-radius: 12px;
+    max-width: 1200px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+.modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Compare table */
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.compare-table th, .compare-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+    vertical-align: middle;
+}
+.compare-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.compare-table tr.diff-row td { background: #fef08a; font-weight: 600; color: #854d0e; }
+.compare-table tr.diff-row td.param-label { background: #fef9c3; font-weight: 700; color: #92400e; }
+.compare-table .param-label {
+    text-align: left;
+    font-weight: 500;
+    color: #475569;
+    background: #f8fafc;
+    white-space: nowrap;
+}
+
+/* Floating compare bar */
+.floating-compare-bar {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 500;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
+    padding: 6px 6px 6px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+.floating-compare-bar.hidden-bar {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+}
+.floating-compare-bar .fcb-count {
+    font-size: 13px;
+    color: #334155;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.floating-compare-bar .fcb-count strong {
+    color: #2563eb;
+    font-size: 15px;
+    margin: 0 2px;
+}
+.floating-compare-bar .fcb-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    white-space: nowrap;
+}
+.floating-compare-bar .fcb-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+}
+.floating-compare-bar .fcb-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
+}
+.floating-compare-bar .fcb-clear {
+    font-size: 11px;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+.floating-compare-bar .fcb-clear:hover {
+    color: #64748b;
+    background: #f1f5f9;
+}
+
+/* Recommend card compare button - active state */
+.rec-compare-btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+.rec-compare-btn:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+.rec-compare-btn.added {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+.rec-compare-btn.added:hover {
+    background: #bfdbfe;
+    border-color: #60a5fa;
+}
+
+/* Browse table action button */
+.row-compare-btn {
+    padding: 4px 10px;
+    font-size: 11.5px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.row-compare-btn:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+    box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+}
+.row-compare-btn.added {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+.row-compare-btn.added:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+/* Compare bar main button enhancement */
+.compare-main-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    color: white !important;
+    padding: 8px 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    border: none !important;
+    cursor: pointer;
+    transition: all 0.2s !important;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+}
+.compare-main-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+    transform: translateY(-1px);
+}
+.compare-main-btn:disabled {
+    background: #cbd5e1 !important;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Copy compare button */
+.copy-compare-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+.copy-compare-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+/* Diff highlight badge */
+.diff-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-size: 10px;
+    background: #f59e0b;
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+/* Data table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 1100px; }
+.data-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f8fafc;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #334155;
+    border-bottom: 2px solid #e2e8f0;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    font-size: 12.5px;
+    z-index: 5;
+}
+.data-table thead th:hover { color: #2563eb; }
+.data-table tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+.data-table tbody tr:hover { background: #f8fafc; }
+.data-table tbody tr.selected { background: #eff6ff !important; }
+.data-table tbody tr.selected:hover { background: #dbeafe !important; }
+
+/* Checkbox */
+.checkbox-cell { width: 32px; text-align: center; }
+
+/* Slider */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #2563eb;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+}
+
+/* Vendor row highlight */
+tr.vendor-row-huawei td:first-child { border-left: 3px solid #dc2626; }
+tr.vendor-row-h3c td:first-child    { border-left: 3px solid #2563eb; }
+tr.vendor-row-ruijie td:first-child { border-left: 3px solid #059669; }
+
+/* NLP input */
+.nlp-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.6;
+}
+.nlp-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+/* Parsed chip */
+.parsed-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Match progress bar */
+.match-progress {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.match-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-gradient { padding: 24px 16px !important; }
+    .hero-gradient h1 { font-size: 20px !important; }
+    .filter-section { padding: 16px !important; }
+    .rec-grid { grid-template-columns: 1fr !important; }
+    .tab-btn { padding: 8px 14px; font-size: 13px; }
+    .stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .form-grid { grid-template-columns: 1fr !important; }
+    .modal-body { padding: 12px; }
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 6px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ FLOATING COMPARE BAR ============ -->
+<div class="floating-compare-bar hidden-bar" id="floatingCompareBar">
+    <span class="fcb-count">已选 <strong id="fcbCount">0</strong> 款对比</span>
+    <span class="fcb-clear" onclick="clearCompare()" title="清空对比">清空</span>
+    <button class="fcb-btn" id="fcbBtn" onclick="showCompareModal()" disabled>开始对比 →</button>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="hero-gradient text-white px-8 py-10">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-start justify-between flex-wrap gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold mb-2">三厂商企业级AP横向对比工具</h1>
+                <p class="text-blue-200 text-sm md:text-base">华为 / H3C / 锐捷，<span class="text-white font-semibold">105款</span>型号智能匹配</p>
+                <div class="mt-3 flex items-center gap-3 flex-wrap">
+                    <span class="inline-flex items-center gap-1 text-xs bg-white/10 px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                        数据更新：<span id="updateTime">--</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 text-xs bg-white/10 px-3 py-1 rounded-full">
+                        华为 <span class="text-red-300 font-semibold">35</span> ·
+                        H3C <span class="text-blue-300 font-semibold">38</span> ·
+                        锐捷 <span class="text-green-300 font-semibold">32</span>
+                    </span>
+                </div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <a href="#recommend" class="text-xs bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition">智能推荐</a>
+                <a href="#browse" class="text-xs bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition">全量浏览</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-4 md:px-8 pb-12 -mt-4">
+
+<!-- ============ STATS ============ -->
+<div class="grid grid-cols-4 gap-3 mb-5 stats-grid">
+    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+        <div class="text-2xl font-bold text-slate-800" id="statTotal">105</div>
+        <div class="text-xs text-slate-500 mt-1">总型号数</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+        <div class="text-2xl font-bold text-red-600" id="statHuawei">35</div>
+        <div class="text-xs text-slate-500 mt-1">华为</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+        <div class="text-2xl font-bold text-blue-600" id="statH3c">38</div>
+        <div class="text-xs text-slate-500 mt-1">H3C</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+        <div class="text-2xl font-bold text-green-600" id="statRuijie">32</div>
+        <div class="text-xs text-slate-500 mt-1">锐捷</div>
+    </div>
+</div>
+
+<!-- ============ RECOMMEND SECTION ============ -->
+<section id="recommend" class="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
+    <!-- Tab header -->
+    <div class="border-b border-slate-200 px-6 flex items-center gap-1">
+        <div class="tab-btn active" data-tab="form" onclick="switchTab('form')">
+            🎯 表单选择（精准模式）
+        </div>
+        <div class="tab-btn" data-tab="nlp" onclick="switchTab('nlp')">
+            💬 自然语言（智能模式）
+        </div>
+    </div>
+
+    <!-- Form tab -->
+    <div id="tabForm" class="p-6 filter-section">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 form-grid">
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">部署场景 <span class="text-red-500">*</span></label>
+                <select id="f_formFactor" class="form-select" onchange="runRecommend()">
+                    <option value="indoor-ceiling">室内放装</option>
+                    <option value="indoor-high-density">室内高密</option>
+                    <option value="outdoor">室外</option>
+                    <option value="wall-plate">面板型</option>
+                    <option value="distributed">智分/分布式</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">Wi-Fi代际</label>
+                <select id="f_wifiGen" class="form-select" onchange="runRecommend()">
+                    <option value="">不限</option>
+                    <option value="Wi-Fi 6">Wi-Fi 6</option>
+                    <option value="Wi-Fi 6E">Wi-Fi 6E</option>
+                    <option value="Wi-Fi 7">Wi-Fi 7</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">并发用户数：<span id="f_usersVal">100</span> 人</label>
+                <input type="range" id="f_users" min="10" max="1000" value="100" step="10" oninput="document.getElementById('f_usersVal').innerText=this.value;runRecommend()">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">速率要求 (Mbps)</label>
+                <input type="number" id="f_rate" class="form-input" placeholder="如 1000/3000/10000" oninput="runRecommend()">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">供电方式</label>
+                <select id="f_poe" class="form-select" onchange="runRecommend()">
+                    <option value="">不限</option>
+                    <option value="802.3af">802.3af (15.4W)</option>
+                    <option value="802.3at">802.3at (30W)</option>
+                    <option value="802.3bt">802.3bt (70W+)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">上行端口要求</label>
+                <select id="f_uplink" class="form-select" onchange="runRecommend()">
+                    <option value="">不限</option>
+                    <option value="1000">GE (千兆)</option>
+                    <option value="2500">2.5G</option>
+                    <option value="5000">5G</option>
+                    <option value="10000">10G (万兆)</option>
+                    <option value="optical">光口</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">定位层级</label>
+                <select id="f_tier" class="form-select" onchange="runRecommend()">
+                    <option value="">不限</option>
+                    <option value="1">旗舰级</option>
+                    <option value="2">高端级</option>
+                    <option value="3">主流级</option>
+                    <option value="4">入门级</option>
+                    <option value="5">价值级</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">厂商偏好（可多选）</label>
+                <div class="flex gap-2">
+                    <span class="chip" id="chip_v_huawei" onclick="toggleVendorChip('huawei')">华为</span>
+                    <span class="chip" id="chip_v_h3c" onclick="toggleVendorChip('h3c')">H3C</span>
+                    <span class="chip" id="chip_v_ruijie" onclick="toggleVendorChip('ruijie')">锐捷</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-6 flex-wrap">
+            <div class="flex items-center gap-2">
+                <div class="toggle-switch" id="tog6ghz" onclick="toggleSwitch('tog6ghz', 'need6ghz');runRecommend()"></div>
+                <span class="text-xs text-slate-600">需要6GHz频段</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="toggle-switch" id="togOptical" onclick="toggleSwitch('togOptical', 'needOptical');runRecommend()"></div>
+                <span class="text-xs text-slate-600">需要光口上行</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="toggle-switch" id="togBt" onclick="toggleSwitch('togBt', 'needBt');runRecommend()"></div>
+                <span class="text-xs text-slate-600">需要蓝牙</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="toggle-switch" id="togIot" onclick="toggleSwitch('togIot', 'needIot');runRecommend()"></div>
+                <span class="text-xs text-slate-600">需要IoT扩展</span>
+            </div>
+            <div class="ml-auto">
+                <button onclick="resetForm()" class="text-xs text-slate-500 hover:text-slate-700 mr-3">重置条件</button>
+                <button onclick="runRecommend()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition shadow-sm">
+                    🔍 开始推荐
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NLP tab -->
+    <div id="tabNlp" class="p-6 filter-section hidden">
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-slate-700 mb-2">用自然语言描述你的需求</label>
+            <textarea id="nlpInput" class="nlp-textarea" placeholder="例如：&#10;我需要一款适合50人办公的室内放装AP，要Wi-Fi 6，支持PoE供电&#10;高密场馆用的室外AP，200人同时接入，要Wi-Fi 7的，需要光口&#10;酒店客房面板AP，每房间支持30人，要带下行网口"></textarea>
+            <div class="text-xs text-slate-500 mt-2">💡 提示：可以描述场景、人数、代际、速率、功能要求等</div>
+        </div>
+        <div class="flex items-center gap-3 mb-3">
+            <button onclick="parseNLP()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-purple-700 transition shadow-sm">
+                🧠 智能解析
+            </button>
+            <button onclick="applyNLPAndRecommend()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition shadow-sm">
+                直接推荐
+            </button>
+        </div>
+        <div id="nlpParsed" class="hidden bg-slate-50 rounded-lg p-3 border border-slate-200">
+            <div class="text-xs font-medium text-slate-600 mb-2">解析结果（可点击修改）：</div>
+            <div id="nlpParsedChips" class="flex flex-wrap gap-2"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ RECOMMEND RESULTS ============ -->
+<section class="mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <span class="w-1 h-5 bg-blue-600 rounded"></span>
+            智能推荐结果
+        </h2>
+        <span class="text-xs text-slate-500" id="recSummary">共筛选出 -- 款候选</span>
+    </div>
+
+    <div id="recGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4 rec-grid">
+        <!-- Recommend cards will be injected here -->
+    </div>
+
+    <div id="recMoreWrap" class="hidden text-center mt-4">
+        <button onclick="showMoreRecs()" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            展开更多推荐 ▼
+        </button>
+    </div>
+
+    <div id="recEmpty" class="hidden bg-white rounded-xl p-8 text-center">
+        <div class="text-4xl mb-3">🤔</div>
+        <div class="text-slate-600 font-medium">暂无符合条件的产品</div>
+        <div class="text-sm text-slate-400 mt-1">请尝试放宽筛选条件</div>
+    </div>
+</section>
+
+<!-- ============ FULL BROWSE SECTION ============ -->
+<section id="browse" class="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
+    <div class="p-5 border-b border-slate-200">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+            <span class="w-1 h-5 bg-green-600 rounded"></span>
+            全量筛选浏览
+        </h2>
+        <div class="flex flex-wrap gap-3 items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-600">厂商：</span>
+                <div class="flex gap-1">
+                    <span class="chip active text-xs" id="b_v_all" onclick="browseVendor('all')">全部</span>
+                    <span class="chip text-xs" id="b_v_huawei" onclick="browseVendor('huawei')">华为</span>
+                    <span class="chip text-xs" id="b_v_h3c" onclick="browseVendor('h3c')">H3C</span>
+                    <span class="chip text-xs" id="b_v_ruijie" onclick="browseVendor('ruijie')">锐捷</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-600">形态：</span>
+                <select id="b_form" class="form-select text-xs" style="width:auto" onchange="renderBrowseTable()">
+                    <option value="">全部</option>
+                    <option value="indoor-ceiling">室内放装</option>
+                    <option value="indoor-high-density">室内高密</option>
+                    <option value="outdoor">室外</option>
+                    <option value="wall-plate">面板型</option>
+                    <option value="distributed">智分/分布式</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-600">Wi-Fi：</span>
+                <select id="b_wifi" class="form-select text-xs" style="width:auto" onchange="renderBrowseTable()">
+                    <option value="">全部</option>
+                    <option value="Wi-Fi 6">Wi-Fi 6</option>
+                    <option value="Wi-Fi 6E">Wi-Fi 6E</option>
+                    <option value="Wi-Fi 7">Wi-Fi 7</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-600">层级：</span>
+                <select id="b_tier" class="form-select text-xs" style="width:auto" onchange="renderBrowseTable()">
+                    <option value="">全部</option>
+                    <option value="1">旗舰级</option>
+                    <option value="2">高端级</option>
+                    <option value="3">主流级</option>
+                    <option value="4">入门级</option>
+                    <option value="5">价值级</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2 ml-auto">
+                <input type="text" id="b_search" class="form-input text-xs" style="width:180px" placeholder="🔍 搜索型号..." oninput="renderBrowseTable()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Compare bar -->
+    <div id="compareBar" class="hidden bg-blue-50 border-b border-blue-200 px-5 py-3.5 flex items-center justify-between">
+        <div class="text-sm text-blue-800 flex items-center gap-2">
+            <span class="text-lg">🔍</span>
+            已选择 <span id="compareCount" class="font-bold text-lg text-blue-700">0</span> 款产品（支持2-4款对比）
+            <span class="text-xs text-blue-600/70 ml-2">已加入对比的行将高亮显示</span>
+        </div>
+        <div class="flex gap-3 items-center">
+            <button onclick="clearCompare()" class="text-xs text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-md hover:bg-white/60 transition">清空</button>
+            <button onclick="showCompareModal()" id="compareBtn" class="compare-main-btn" disabled>
+                对比选中 →
+            </button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto" style="max-height:520px;overflow-y:auto">
+        <table class="data-table" id="browseTable">
+            <thead>
+                <tr>
+                    <th class="checkbox-cell"><input type="checkbox" id="checkAll" onchange="toggleAllChecks(this)" style="cursor:pointer"></th>
+                    <th onclick="sortTable('vendor')">厂商 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('model_full_name')">型号 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('wifi_gen')">Wi-Fi代际 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('form_factor')">形态 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('tier_level')">层级 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('max_rate_mbps')">整机速率 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('spatial_streams_5g')">5G空间流 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('max_users')">并发用户 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('uplink_port_speed')">上行端口 <span class="sort-icon">↕</span></th>
+                    <th onclick="sortTable('poe_support')">PoE <span class="sort-icon">↕</span></th>
+                    <th>标签</th>
+                    <th class="text-center">操作</th>
+                </tr>
+            </thead>
+            <tbody id="browseBody">
+            </tbody>
+        </table>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 text-xs text-slate-500 flex justify-between">
+        <span id="browseCount">显示 0 / 105 款</span>
+        <span>点击表头可排序</span>
+    </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="text-center text-xs text-slate-500 py-6">
+    <p class="mb-2">数据来源：华为企业业务官网 / 新华三官网 / 锐捷网络官网</p>
+    <p class="mb-2">免责声明：本工具仅供选型参考，具体规格以厂商官方数据为准，不构成采购建议</p>
+    <p class="text-slate-400">© 2026 三厂商AP横向对比工具 · 纯静态单页实现</p>
+</footer>
+
+</div>
+
+<!-- ============ COMPARE MODAL ============ -->
+<div class="modal-overlay" id="compareModal" onclick="if(event.target===this)closeCompareModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                📊 型号参数对比
+                <span class="diff-badge" id="diffCountBadge" style="display:none">0 项差异</span>
+            </h2>
+            <div class="flex items-center gap-3">
+                <button onclick="copyCompareResult()" class="copy-compare-btn" id="copyCompareBtn">
+                    📋 复制对比结果
+                </button>
+                <button onclick="closeCompareModal()" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+            </div>
+        </div>
+        <div class="modal-body" id="compareModalBody">
+            <!-- Compare table injected here -->
+        </div>
+    </div>
+</div>
+
+<!-- ============ DATA & SCRIPT ============ -->
+<script>
+// ============== DATA ==============
+const AP_DATA = [{"id":"huawei_airengine-8776-x7f-t","vendor":"huawei","model_full_name":"AirEngine 8776-X7F-T","product_series":"AirEngine 8700","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":26560,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":4,"radio_count":5,"max_users":1024,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X","空口加密"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":85,"weight_kg":2.5,"dimensions_mm":"265×265×68","typical_scenario":["超高密场馆","大型会议中心","高校图书馆","旗舰办公"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-8776-x7thp-t","vendor":"huawei","model_full_name":"AirEngine 8776-X7THP-T","product_series":"AirEngine 8700","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":18670,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":3,"max_users":800,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X","空口加密"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":72,"weight_kg":2.3,"dimensions_mm":"265×265×65","typical_scenario":["高密场馆","会议中心","高校","高端办公"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":true,"status":"active","release_date":"2024-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-8771-x1t","vendor":"huawei","model_full_name":"AirEngine 8771-X1T","product_series":"AirEngine 8700","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":18670,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":3,"max_users":800,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X","空口加密"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":70,"weight_kg":2.2,"dimensions_mm":"260×260×65","typical_scenario":["高密场馆","会议中心","旗舰办公"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-8760-x1-pro","vendor":"huawei","model_full_name":"AirEngine 8760-X1-PRO","product_series":"AirEngine 8700","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":10750,"spatial_streams_2g":4,"spatial_streams_5g":12,"spatial_streams_6g":0,"radio_count":3,"max_users":800,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X","空口加密"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":65,"weight_kg":2.0,"dimensions_mm":"240×240×60","typical_scenario":["高密场馆","会议中心","高校图书馆","旗舰办公"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-8761-x1","vendor":"huawei","model_full_name":"AirEngine 8761-X1","product_series":"AirEngine 8700","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5950,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":2,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":40,"weight_kg":1.8,"dimensions_mm":"220×220×55","typical_scenario":["高密办公","高校教室"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6776-x7th","vendor":"huawei","model_full_name":"AirEngine 6776-X7TH","product_series":"AirEngine 6700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":15100,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":4,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":55,"weight_kg":1.8,"dimensions_mm":"220×220×55","typical_scenario":["高密办公","会议中心","高教"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6776-x6h","vendor":"huawei","model_full_name":"AirEngine 6776-X6H","product_series":"AirEngine 6700","form_factor":"indoor-ceiling","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":7140,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":300,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":35,"weight_kg":1.5,"dimensions_mm":"220×220×50","typical_scenario":["高端办公","高校","医疗"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6776-x6eth","vendor":"huawei","model_full_name":"AirEngine 6776-X6ETH","product_series":"AirEngine 6700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":12210,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":2,"radio_count":3,"max_users":400,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":38,"weight_kg":1.5,"dimensions_mm":"220×220×50","typical_scenario":["高端办公","高教高密"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6776-57t","vendor":"huawei","model_full_name":"AirEngine 6776-57T","product_series":"AirEngine 6700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":13660,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":4,"radio_count":3,"max_users":400,"uplink_port_speed":5000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":40,"weight_kg":1.6,"dimensions_mm":"220×220×55","typical_scenario":["高密办公","会议中心"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6776-56tp","vendor":"huawei","model_full_name":"AirEngine 6776-56TP","product_series":"AirEngine 6700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":9330,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":4,"radio_count":3,"max_users":350,"uplink_port_speed":5000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":30,"weight_kg":1.4,"dimensions_mm":"200×200×50","typical_scenario":["高密办公","高教教室"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6760-x1","vendor":"huawei","model_full_name":"AirEngine 6760-X1","product_series":"AirEngine 6700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":10750,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":45,"weight_kg":1.6,"dimensions_mm":"220×220×55","typical_scenario":["高密场馆","会议中心","高教"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6761-21","vendor":"huawei","model_full_name":"AirEngine 6761-21","product_series":"AirEngine 6700","form_factor":"indoor-ceiling","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":3550,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":24.5,"weight_kg":1.2,"dimensions_mm":"220×220×50","typical_scenario":["企业办公","高教","医疗","商业"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6761-21t","vendor":"huawei","model_full_name":"AirEngine 6761-21T","product_series":"AirEngine 6700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":6575,"spatial_streams_2g":2,"spatial_streams_5g":6,"spatial_streams_6g":0,"radio_count":3,"max_users":300,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":30,"weight_kg":1.3,"dimensions_mm":"220×220×55","typical_scenario":["高密办公","高教教室"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6761-22t","vendor":"huawei","model_full_name":"AirEngine 6761-22T","product_series":"AirEngine 6700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6E","has_6ghz":true,"max_rate_mbps":6575,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":4,"radio_count":3,"max_users":300,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":30,"weight_kg":1.3,"dimensions_mm":"220×220×55","typical_scenario":["高密办公","科研","医疗"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5776-57t","vendor":"huawei","model_full_name":"AirEngine 5776-57T","product_series":"AirEngine 5700","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":7890,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":2,"radio_count":3,"max_users":250,"uplink_port_speed":5000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":28,"weight_kg":1.3,"dimensions_mm":"220×220×50","typical_scenario":["企业办公","高教","商业"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5776-26","vendor":"huawei","model_full_name":"AirEngine 5776-26","product_series":"AirEngine 5700","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":6450,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":22,"weight_kg":1.0,"dimensions_mm":"200×200×45","typical_scenario":["企业办公","高教","医疗"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":true,"status":"active","release_date":"2024-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5773-21","vendor":"huawei","model_full_name":"AirEngine 5773-21","product_series":"AirEngine 5700","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":150,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":15,"weight_kg":0.8,"dimensions_mm":"180×180×40","typical_scenario":["中小企业办公","零售"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5761-21","vendor":"huawei","model_full_name":"AirEngine 5761-21","product_series":"AirEngine 5700","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5375,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":24.5,"weight_kg":1.2,"dimensions_mm":"220×220×50","typical_scenario":["企业办公","高教","零售"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5760-51","vendor":"huawei","model_full_name":"AirEngine 5760-51","product_series":"AirEngine 5700","form_factor":"indoor-high-density","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5950,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":300,"uplink_port_speed":5000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":35,"weight_kg":1.5,"dimensions_mm":"220×220×55","typical_scenario":["高密办公","高教教室"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5761-12","vendor":"huawei","model_full_name":"AirEngine 5761-12","product_series":"AirEngine 5700","form_factor":"indoor-ceiling","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":15.5,"weight_kg":0.8,"dimensions_mm":"180×180×40","typical_scenario":["中小企业办公","教育","医院"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5762-12","vendor":"huawei","model_full_name":"AirEngine 5762-12","product_series":"AirEngine 5700","form_factor":"indoor-ceiling","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":13,"weight_kg":0.7,"dimensions_mm":"170×170×38","typical_scenario":["中小企业办公","医院","咖啡厅"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5773-25hw","vendor":"huawei","model_full_name":"AirEngine 5773-25HW","product_series":"AirEngine 5700","form_factor":"wall-plate","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":8,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入","墙面明装"],"power_consumption_max":25,"weight_kg":0.5,"dimensions_mm":"86×86×35","typical_scenario":["酒店客房","宿舍","医院病房"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5773-23hw","vendor":"huawei","model_full_name":"AirEngine 5773-23HW","product_series":"AirEngine 5700","form_factor":"wall-plate","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":80,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":4,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入","墙面明装"],"power_consumption_max":18,"weight_kg":0.4,"dimensions_mm":"86×86×32","typical_scenario":["酒店客房","宿舍","医院病房"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5773-21hw","vendor":"huawei","model_full_name":"AirEngine 5773-21HW","product_series":"AirEngine 5700","form_factor":"wall-plate","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":60,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":4,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入"],"power_consumption_max":12.6,"weight_kg":0.35,"dimensions_mm":"185×42×185","typical_scenario":["酒店客房","宿舍"],"product_url":"https://info.support.huawei.com/enterprise/zh/doc/EDOC1100101737/c437fd75","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5762-17w","vendor":"huawei","model_full_name":"AirEngine 5762-17W","product_series":"AirEngine 5700","form_factor":"wall-plate","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":60,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":4,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入"],"power_consumption_max":15,"weight_kg":0.3,"dimensions_mm":"86×86×30","typical_scenario":["酒店客房","宿舍","医院病房"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5761-12w","vendor":"huawei","model_full_name":"AirEngine 5761-12W","product_series":"AirEngine 5700","form_factor":"wall-plate","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":50,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":4,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入"],"power_consumption_max":13,"weight_kg":0.25,"dimensions_mm":"86×86×30","typical_scenario":["酒店客房","宿舍","医院病房"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-8776i-x6ethp-t","vendor":"huawei","model_full_name":"AirEngine 8776I-X6ETHP-T","product_series":"AirEngine 8700","form_factor":"outdoor","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":18670,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"外置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":85,"weight_kg":8.0,"dimensions_mm":"300×300×150","typical_scenario":["园区","广场","体育场馆","工业区"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-8760r-x1","vendor":"huawei","model_full_name":"AirEngine 8760R-X1","product_series":"AirEngine 8700","form_factor":"outdoor","tier_level":1,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":10750,"spatial_streams_2g":8,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":75,"weight_kg":7.5,"dimensions_mm":"280×280×140","typical_scenario":["园区","广场","体育场馆"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6776i-x7th","vendor":"huawei","model_full_name":"AirEngine 6776I-X7TH","product_series":"AirEngine 6700","form_factor":"outdoor","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":15100,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":4,"radio_count":3,"max_users":400,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"外置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":60,"weight_kg":6.5,"dimensions_mm":"260×260×120","typical_scenario":["园区","广场","校区"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-6760r-51","vendor":"huawei","model_full_name":"AirEngine 6760R-51","product_series":"AirEngine 6700","form_factor":"outdoor","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5950,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":300,"uplink_port_speed":5000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":45,"weight_kg":5.0,"dimensions_mm":"250×250×110","typical_scenario":["园区","广场","景区"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5776i-x6h","vendor":"huawei","model_full_name":"AirEngine 5776I-X6H","product_series":"AirEngine 5700","form_factor":"outdoor","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":6450,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":30,"weight_kg":3.5,"dimensions_mm":"220×220×90","typical_scenario":["园区","小区","景区"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5761r-11","vendor":"huawei","model_full_name":"AirEngine 5761R-11","product_series":"AirEngine 5700","form_factor":"outdoor","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":1000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":18,"weight_kg":2.0,"dimensions_mm":"200×200×80","typical_scenario":["园区","小区","小型景区"],"product_url":"https://e.huawei.com/cn/products/wlan","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-9700d-m1","vendor":"huawei","model_full_name":"AirEngine 9700D-M1 万兆中心AP","product_series":"AirEngine 9700D","form_factor":"distributed","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":10750,"spatial_streams_2g":48,"spatial_streams_5g":48,"spatial_streams_6g":0,"radio_count":48,"max_users":1024,"uplink_port_speed":10000,"uplink_port_count":4,"has_optical_uplink":true,"poe_support":"none","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":48,"distributed_unit_model":"AirEngine 5761-11WD","protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"远端单元内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["机架安装"],"power_consumption_max":433.8,"weight_kg":5.5,"dimensions_mm":"442×220×43.6","typical_scenario":["宿舍","酒店","医院","高密度房间"],"product_url":"https://e.huawei.com/cn/products/wlan/distributed-access-points/airengine-9700d-m1","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-9700d-s","vendor":"huawei","model_full_name":"AirEngine 9700D-S 分布式接入点","product_series":"AirEngine 9700D","form_factor":"distributed","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":10750,"spatial_streams_2g":8,"spatial_streams_5g":16,"spatial_streams_6g":0,"radio_count":8,"max_users":512,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"none","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":8,"distributed_unit_model":"AirEngine 5760-11DH","protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"远端单元天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["壁挂","机架"],"power_consumption_max":178,"weight_kg":2.89,"dimensions_mm":"320×210×43.6","typical_scenario":["医院零漫游","医疗"],"product_url":"https://e.huawei.com/cn/products/wlan/scenario-based-access-points/airengine-9700d-s","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"huawei_airengine-5761-11wd","vendor":"huawei","model_full_name":"AirEngine 5761-11WD 远端单元","product_series":"AirEngine 5700","form_factor":"distributed","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":50,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["面板嵌入"],"power_consumption_max":12,"weight_kg":0.2,"dimensions_mm":"86×86×30","typical_scenario":["宿舍","酒店房间"],"product_url":"https://e.huawei.com/cn/products/wlan/distributed-access-points/airengine-9700d-m1","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"华为企业业务官网"},{"id":"h3c_wa7638","vendor":"h3c","model_full_name":"H3C WA7638","product_series":"WA7600","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":18442,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":4,"radio_count":4,"max_users":1024,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":57.9,"weight_kg":1.9,"dimensions_mm":"265×265×48","typical_scenario":["会议","场馆","教学高密"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":true,"status":"active","release_date":"2024-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7538","vendor":"h3c","model_full_name":"H3C WA7538","product_series":"WA7500","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":17293,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":4,"radio_count":3,"max_users":800,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":45,"weight_kg":1.5,"dimensions_mm":"240×240×45","typical_scenario":["高密场馆","会议中心","高教"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7338-hi","vendor":"h3c","model_full_name":"H3C WA7338-HI","product_series":"WA7300","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":9335,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":2,"radio_count":4,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":35,"weight_kg":1.2,"dimensions_mm":"220×220×45","typical_scenario":["高密办公","高教教室"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7330i","vendor":"h3c","model_full_name":"H3C WA7330i","product_series":"WA7300","form_factor":"indoor-ceiling","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":8647,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":2,"radio_count":3,"max_users":400,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":30,"weight_kg":1.0,"dimensions_mm":"210×210×40","typical_scenario":["企业办公","高教","商业"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7320i","vendor":"h3c","model_full_name":"H3C WA7320i","product_series":"WA7300","form_factor":"indoor-ceiling","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":6453,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":256,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":39,"weight_kg":0.8,"dimensions_mm":"204×204×33","typical_scenario":["企业办公","高教","医疗"],"product_url":"https://www.h3c.com/en/d_202503/2380097_294551_0.htm","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7230","vendor":"h3c","model_full_name":"H3C WA7230","product_series":"WA7200","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":6453,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":20,"weight_kg":0.7,"dimensions_mm":"190×190×35","typical_scenario":["企业办公","中小企业"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7220-hi","vendor":"h3c","model_full_name":"H3C WA7220-HI","product_series":"WA7200","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":6453,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":22,"weight_kg":0.7,"dimensions_mm":"190×190×35","typical_scenario":["企业办公","高教"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6638","vendor":"h3c","model_full_name":"H3C WA6638","product_series":"WA6600","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5950,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":40,"weight_kg":1.5,"dimensions_mm":"240×240×50","typical_scenario":["高密场馆","会议中心","高校"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6628","vendor":"h3c","model_full_name":"H3C WA6628","product_series":"WA6600","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5950,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":2,"max_users":400,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":28,"weight_kg":1.3,"dimensions_mm":"220×220×45","typical_scenario":["高密办公","高校图书馆"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6530i","vendor":"h3c","model_full_name":"H3C WA6530i","product_series":"WA6500","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5375,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":300,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":25,"weight_kg":1.0,"dimensions_mm":"200×200×40","typical_scenario":["企业办公","高教","医疗"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6528i","vendor":"h3c","model_full_name":"H3C WA6528i","product_series":"WA6500","form_factor":"indoor-high-density","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5375,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":3,"max_users":350,"uplink_port_speed":5000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":42.5,"weight_kg":1.2,"dimensions_mm":"220×220×46","typical_scenario":["高密办公","高教教室"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2020-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6520","vendor":"h3c","model_full_name":"H3C WA6520","product_series":"WA6500","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":150,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":13,"weight_kg":0.6,"dimensions_mm":"180×180×32","typical_scenario":["企业办公","中小企业"],"product_url":"https://www.h3c.com/en/Products_and_Solutions/InterConnect/Wireless/Products/AP/Wi-Fi_6/Indoor/WA6520/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6330","vendor":"h3c","model_full_name":"H3C WA6330","product_series":"WA6300","form_factor":"indoor-ceiling","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":3267,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":3,"max_users":150,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP42","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":16.5,"weight_kg":0.5,"dimensions_mm":"170×170×35","typical_scenario":["中小企业办公","零售"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6320","vendor":"h3c","model_full_name":"H3C WA6320","product_series":"WA6300","form_factor":"indoor-ceiling","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":13,"weight_kg":0.4,"dimensions_mm":"160×160×30","typical_scenario":["中小企业办公","零售"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7322h-hi","vendor":"h3c","model_full_name":"H3C WA7322H-HI","product_series":"WA7300H","form_factor":"wall-plate","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":6453,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":80,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":45,"wall_plate_downlink_ports":5,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["86面板嵌入"],"power_consumption_max":30.6,"weight_kg":0.4,"dimensions_mm":"86×170×40","typical_scenario":["高端酒店","宿舍","医院病房"],"product_url":"https://www.h3c.com/en/d_202603/2776524_294551_0.htm","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6520h","vendor":"h3c","model_full_name":"H3C WA6520H","product_series":"WA6520H","form_factor":"wall-plate","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5375,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":60,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":3,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["86面板嵌入","墙面明装"],"power_consumption_max":15,"weight_kg":0.3,"dimensions_mm":"86×86×30","typical_scenario":["酒店客房","宿舍","医院病房"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Products/Panel_AP/WiFi_6/WA6520H/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6320h","vendor":"h3c","model_full_name":"H3C WA6320H","product_series":"WA6320H","form_factor":"wall-plate","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":50,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":4,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["86面板嵌入"],"power_consumption_max":12.95,"weight_kg":0.25,"dimensions_mm":"160×86×30","typical_scenario":["酒店客房","宿舍"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Products/Panel_AP/WiFi_6/WA6320H/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7630x","vendor":"h3c","model_full_name":"H3C WA7630X","product_series":"WA7600X","form_factor":"outdoor","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":18670,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置高增益天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":80,"weight_kg":8.0,"dimensions_mm":"350×350×160","typical_scenario":["场馆","校园","广场","工业区"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Default.htm","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7330x","vendor":"h3c","model_full_name":"H3C WA7330X","product_series":"WA7300X","form_factor":"outdoor","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":11525,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":2,"radio_count":3,"max_users":300,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":50,"weight_kg":6.0,"dimensions_mm":"280×280×120","typical_scenario":["园区","广场","校区"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6630x","vendor":"h3c","model_full_name":"H3C WA6630X","product_series":"WA6600X","form_factor":"outdoor","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5400,"spatial_streams_2g":4,"spatial_streams_5g":6,"spatial_streams_6g":0,"radio_count":3,"max_users":300,"uplink_port_speed":10000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":45,"weight_kg":5.0,"dimensions_mm":"280×280×120","typical_scenario":["室外高密","无线城市","体育场馆"],"product_url":"https://www.h3c.com/en/Products_and_Solutions/InterConnect/Wireless/Products/AP/Wi-Fi_6/Outdoor/WA6630X/","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2021-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6620x","vendor":"h3c","model_full_name":"H3C WA6620X","product_series":"WA6600X","form_factor":"outdoor","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":150,"uplink_port_speed":1000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置智能定向天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":31,"weight_kg":3.0,"dimensions_mm":"250×250×100","typical_scenario":["园区","景区","室外覆盖"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Default.htm","datasheet_url":"","is_hot":true,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6520x-e","vendor":"h3c","model_full_name":"H3C WA6520X-E","product_series":"WA6500X","form_factor":"outdoor","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":4800,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP67","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":25,"weight_kg":2.5,"dimensions_mm":"220×220×90","typical_scenario":["园区","广场","景区"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Default.htm","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wtu720","vendor":"h3c","model_full_name":"H3C WTU720 多业务分布式AP","product_series":"WTU700","form_factor":"distributed","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":10000,"uplink_port_count":1,"has_optical_uplink":true,"poe_support":"none","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":8,"distributed_unit_model":"远端天线单元","protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"远端天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["壁挂","机架"],"power_consumption_max":60,"weight_kg":3.0,"dimensions_mm":"300×220×45","typical_scenario":["医疗零漫游","医院"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"ruijie_rg-ap9861-r","vendor":"ruijie","model_full_name":"RG-AP9861-R","product_series":"RG-AP9800","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":12906,"spatial_streams_2g":4,"spatial_streams_5g":6,"spatial_streams_6g":4,"radio_count":4,"max_users":1024,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":75,"weight_kg":2.5,"dimensions_mm":"260×260×65","typical_scenario":["超高密场馆","大型会议中心","旗舰办公"],"product_url":"http://www.ruijie.com.cn/cp/wx-fzhxwxjrd-wifi7/ap9220r/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap9850-r","vendor":"ruijie","model_full_name":"RG-AP9850-R","product_series":"RG-AP9800","form_factor":"indoor-high-density","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":16470,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":4,"radio_count":5,"max_users":1024,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":80,"weight_kg":2.8,"dimensions_mm":"280×280×70","typical_scenario":["超高密场馆","体育中心","旗舰办公"],"product_url":"http://www.ruijie.com.cn/cp/wx-fzhxwxjrd-wifi7/ap9220r/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap9751-r","vendor":"ruijie","model_full_name":"RG-AP9751-R","product_series":"RG-AP9700","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":12218,"spatial_streams_2g":4,"spatial_streams_5g":6,"spatial_streams_6g":2,"radio_count":4,"max_users":600,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":55,"weight_kg":2.0,"dimensions_mm":"240×240×55","typical_scenario":["高密场馆","会议中心","高教"],"product_url":"https://zlkfile.ruijie.com.cn/e19fb018-65d9-42b4-a4bd-557020776e2b/nje1mj/RG-AP9751-R%20Wi-Fi%207%E4%B8%89%E5%B0%84%E9%A2%91%E5%A2%9E%E5%BC%BA%E7%BA%A7%E6%94%BE%E8%A3%85%E5%9E%8B%E6%97%A0%E7%BA%BF%E6%8E%A5%E5%85%A5%E7%82%B9%E4%BA%A7%E5%93%81%E5%BD%A9%E9%A1%B5%20-%20%E6%B5%8F%E8%A7%88%E6%96%87%E4%BB%B6%20-%2009291715.pdf?_upd=true","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap9520-rdx","vendor":"ruijie","model_full_name":"RG-AP9520-RDX","product_series":"RG-AP9500","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":6453,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置赋形天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":40,"weight_kg":1.8,"dimensions_mm":"240×240×55","typical_scenario":["高密场馆","高校图书馆","体育馆"],"product_url":"https://ruijie.com.cn/jszl/930785/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2025-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap9250-r","vendor":"ruijie","model_full_name":"RG-AP9250-R","product_series":"RG-AP9200","form_factor":"indoor-high-density","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":6452,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":2,"radio_count":4,"max_users":400,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":35,"weight_kg":1.5,"dimensions_mm":"220×220×50","typical_scenario":["高密办公","高教教室"],"product_url":"http://www.ruijie.com.cn/cp/wx-fzhxwxjrd-wifi7/ap9220r/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap9220r","vendor":"ruijie","model_full_name":"RG-AP9220-R","product_series":"RG-AP9200","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":2,"radio_count":3,"max_users":256,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":22,"weight_kg":1.0,"dimensions_mm":"200×200×45","typical_scenario":["高教","政府","普教","金融","商业"],"product_url":"http://www.ruijie.com.cn/cp/wx-fzhxwxjrd-wifi7/ap9220r/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap9220-v2","vendor":"ruijie","model_full_name":"RG-AP9220(V2)","product_series":"RG-AP9200","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":256,"uplink_port_speed":5000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":20,"weight_kg":0.9,"dimensions_mm":"190×190×40","typical_scenario":["企业办公","高教","医疗"],"product_url":"http://www.ruijie.com.cn/cp/wx/ap9220v2/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap880-ar","vendor":"ruijie","model_full_name":"RG-AP880-AR","product_series":"RG-AP880","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":8642,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":4,"max_users":600,"uplink_port_speed":5000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":45,"weight_kg":1.6,"dimensions_mm":"220×220×55","typical_scenario":["高密场馆","会议中心","高校"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap850-ar","vendor":"ruijie","model_full_name":"RG-AP850-AR(V3)","product_series":"RG-AP850","form_factor":"indoor-high-density","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5375,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":3,"max_users":400,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":30,"weight_kg":1.3,"dimensions_mm":"210×210×50","typical_scenario":["高密办公","高教教室"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap840-i","vendor":"ruijie","model_full_name":"RG-AP840-I(V2)","product_series":"RG-AP840","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":3550,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":256,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":25,"weight_kg":1.1,"dimensions_mm":"200×200×45","typical_scenario":["企业办公","高教","医疗"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap820-i","vendor":"ruijie","model_full_name":"RG-AP820-I","product_series":"RG-AP820","form_factor":"indoor-ceiling","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":128,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":15,"weight_kg":0.7,"dimensions_mm":"180×180×40","typical_scenario":["中小企业办公","零售"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap820c","vendor":"ruijie","model_full_name":"RG-AP820C","product_series":"RG-AP820","form_factor":"indoor-ceiling","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":128,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":false,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":12,"weight_kg":0.5,"dimensions_mm":"160×160×35","typical_scenario":["通用级办公","零售"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap810-i","vendor":"ruijie","model_full_name":"RG-AP810-I","product_series":"RG-AP810","form_factor":"indoor-ceiling","tier_level":5,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":64,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":10,"weight_kg":0.4,"dimensions_mm":"150×150×30","typical_scenario":["入门级办公","零售"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap6981","vendor":"ruijie","model_full_name":"RG-AP6981","product_series":"RG-AP6900","form_factor":"outdoor","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":11525,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":4,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":70,"weight_kg":6.5,"dimensions_mm":"300×300×130","typical_scenario":["园区","广场","体育场馆","工业区"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap680-ar","vendor":"ruijie","model_full_name":"RG-AP680-AR","product_series":"RG-AP680","form_factor":"outdoor","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":10755,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":0,"radio_count":4,"max_users":400,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":60,"weight_kg":4.3,"dimensions_mm":"300×300×94","typical_scenario":["高密室外","校园","广场"],"product_url":"http://www.ruijie.com.cn/cp/wx-swap/ap680ar/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap680-io","vendor":"ruijie","model_full_name":"RG-AP680-IO","product_series":"RG-AP680","form_factor":"outdoor","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5951,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":2,"max_users":256,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":35,"weight_kg":3.5,"dimensions_mm":"250×250×100","typical_scenario":["园区","广场","景区"],"product_url":"https://www.ruijie.com.cn/cp/wx-swap/ap680io/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap680c","vendor":"ruijie","model_full_name":"RG-AP680C","product_series":"RG-AP680","form_factor":"outdoor","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":128,"uplink_port_speed":1000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":false,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["壁挂","抱杆"],"power_consumption_max":20,"weight_kg":1.45,"dimensions_mm":"251×173×56","typical_scenario":["高教","无线城市","能源","广场"],"product_url":"http://www.ruijie.com.cn/cp/wx-fzhxwxjrd/ap680c/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap680-a","vendor":"ruijie","model_full_name":"RG-AP680-A","product_series":"RG-AP680","form_factor":"outdoor","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2400,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":1000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["壁挂","抱杆"],"power_consumption_max":18,"weight_kg":1.0,"dimensions_mm":"251×168×64","typical_scenario":["普教","商贸广场","步行街","旅游景区"],"product_url":"http://www.ruijie.com.cn/cp/wx-cjna/ap680a/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap1920-v2","vendor":"ruijie","model_full_name":"RG-AP1920(V2)","product_series":"RG-AP1920","form_factor":"wall-plate","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":3570,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":128,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":40,"wall_plate_downlink_ports":4,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["86面板嵌入","墙面明装"],"power_consumption_max":11.63,"weight_kg":0.25,"dimensions_mm":"86×86×30","typical_scenario":["酒店客房","宿舍","医院病房"],"product_url":"http://www.ruijie.com.cn/cp/wx-qmxap-wifi7/ap1920v2/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap180-i","vendor":"ruijie","model_full_name":"RG-AP180-I","product_series":"RG-AP180","form_factor":"wall-plate","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":64,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":40,"wall_plate_downlink_ports":3,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入"],"power_consumption_max":12,"weight_kg":0.2,"dimensions_mm":"86×86×30","typical_scenario":["酒店客房","宿舍","医院病房"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap180-v3","vendor":"ruijie","model_full_name":"RG-AP180(V3)","product_series":"RG-AP180","form_factor":"wall-plate","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":64,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":40,"wall_plate_downlink_ports":3,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入"],"power_consumption_max":10,"weight_kg":0.18,"dimensions_mm":"86×86×28","typical_scenario":["酒店客房","宿舍"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-apd4930","vendor":"ruijie","model_full_name":"RG-APD4930 零漫游主机AP","product_series":"RG-APD4900","form_factor":"distributed","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":5970,"spatial_streams_2g":2,"spatial_streams_5g":6,"spatial_streams_6g":0,"radio_count":4,"max_users":512,"uplink_port_speed":2500,"uplink_port_count":5,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":8,"distributed_unit_model":"美化天线","protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":1,"antenna_type":"外置美化天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["壁挂","吸顶"],"power_consumption_max":60,"weight_kg":2.1,"dimensions_mm":"300×235×50","typical_scenario":["医院零漫游","医疗"],"product_url":"https://m.ruijie.com.cn/cp/wx-chjhbsh-ydyh/apd4930/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-am5532","vendor":"ruijie","model_full_name":"RG-AM5532 智分+主机","product_series":"RG-AM5500","form_factor":"distributed","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":10000,"spatial_streams_2g":64,"spatial_streams_5g":64,"spatial_streams_6g":0,"radio_count":64,"max_users":1024,"uplink_port_speed":10000,"uplink_port_count":4,"has_optical_uplink":true,"poe_support":"none","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":32,"distributed_unit_model":"RG-MAP852","protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"远端单元内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["机架安装"],"power_consumption_max":200,"weight_kg":4.5,"dimensions_mm":"442×220×43.6","typical_scenario":["宿舍","酒店","医院"],"product_url":"http://www.ruijie.com.cn/cp/wx-zfap-zfxap/map852/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-map852","vendor":"ruijie","model_full_name":"RG-MAP852 智分+微AP","product_series":"RG-MAP800","form_factor":"distributed","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":64,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":40,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["面板嵌入"],"power_consumption_max":10,"weight_kg":0.2,"dimensions_mm":"86×86×30","typical_scenario":["宿舍","酒店房间"],"product_url":"http://www.ruijie.com.cn/cp/wx-zfap-zfxap/map852/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"h3c_wa7636","vendor":"h3c","model_full_name":"H3C WA7636","product_series":"WA7600","form_factor":"indoor-ceiling","tier_level":1,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":11525,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":2,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["壁挂","吸顶"],"power_consumption_max":45,"weight_kg":1.6,"dimensions_mm":"240×240×50","typical_scenario":["高密办公","高端壁挂场景"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7539","vendor":"h3c","model_full_name":"H3C WA7539","product_series":"WA7500","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":18670,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":4,"radio_count":3,"max_users":800,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":50,"weight_kg":1.8,"dimensions_mm":"250×250×55","typical_scenario":["高密场馆","会议中心"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2024-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7232","vendor":"h3c","model_full_name":"H3C WA7232","product_series":"WA7200","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":6453,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":18,"weight_kg":0.65,"dimensions_mm":"180×180×35","typical_scenario":["企业办公","中小企业"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7222f","vendor":"h3c","model_full_name":"H3C WA7222F","product_series":"WA7200","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":5400,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":150,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":0,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":15,"weight_kg":0.6,"dimensions_mm":"170×170×33","typical_scenario":["金融网点","中小企业办公"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6636","vendor":"h3c","model_full_name":"H3C WA6636","product_series":"WA6600","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5950,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":3,"max_users":400,"uplink_port_speed":10000,"uplink_port_count":3,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":48.6,"weight_kg":1.6,"dimensions_mm":"240×240×50","typical_scenario":["高密场馆","会议中心"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6638i","vendor":"h3c","model_full_name":"H3C WA6638i","product_series":"WA6600","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5950,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":3,"max_users":500,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":42,"weight_kg":1.4,"dimensions_mm":"220×220×48","typical_scenario":["高密办公","高教"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6526","vendor":"h3c","model_full_name":"H3C WA6526","product_series":"WA6500","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":15,"weight_kg":0.6,"dimensions_mm":"180×180×32","typical_scenario":["企业办公","高教"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2020-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6522","vendor":"h3c","model_full_name":"H3C WA6522","product_series":"WA6500","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":150,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":13,"weight_kg":0.5,"dimensions_mm":"180×180×32","typical_scenario":["中小企业办公","零售"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2020-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6520-hi","vendor":"h3c","model_full_name":"H3C WA6520-HI","product_series":"WA6500","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":3550,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":16,"weight_kg":0.6,"dimensions_mm":"180×180×35","typical_scenario":["企业办公","高教"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6338-hi","vendor":"h3c","model_full_name":"H3C WA6338-HI","product_series":"WA6300","form_factor":"indoor-ceiling","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":3550,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":3,"max_users":200,"uplink_port_speed":1000,"uplink_port_count":2,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":16,"weight_kg":0.5,"dimensions_mm":"170×170×35","typical_scenario":["企业办公","高教"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6120","vendor":"h3c","model_full_name":"H3C WA6120","product_series":"WA6100","form_factor":"indoor-ceiling","tier_level":5,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":64,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":false,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":55,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":10,"weight_kg":0.4,"dimensions_mm":"150×150×30","typical_scenario":["SMB办公","零售","小型企业"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa7220x","vendor":"h3c","model_full_name":"H3C WA7220X","product_series":"WA7200X","form_factor":"outdoor","tier_level":3,"wifi_gen":"Wi-Fi 7","has_6ghz":true,"max_rate_mbps":5400,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP67","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":25,"weight_kg":2.5,"dimensions_mm":"220×220×90","typical_scenario":["园区","小区","室外覆盖"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Default.htm","datasheet_url":"","is_hot":false,"is_new":true,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6320x-g","vendor":"h3c","model_full_name":"H3C WA6320X-G","product_series":"WA6300X","form_factor":"outdoor","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP67","operating_temp_min":-40,"operating_temp_max":60,"wall_plate_downlink_ports":0,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":15,"weight_kg":2.0,"dimensions_mm":"200×200×80","typical_scenario":["小区","小型景区"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Default.htm","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6526h","vendor":"h3c","model_full_name":"H3C WA6526H","product_series":"WA6520H","form_factor":"wall-plate","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5375,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":60,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":true,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":4,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["86面板嵌入"],"power_consumption_max":15,"weight_kg":0.3,"dimensions_mm":"86×86×30","typical_scenario":["高端酒店","宿舍","医院病房"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Products/Panel_AP/WiFi_6/WA6520H/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"h3c_wa6322h-hi","vendor":"h3c","model_full_name":"H3C WA6322H-HI","product_series":"WA6320H","form_factor":"wall-plate","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":2975,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":50,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":3,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["86面板嵌入"],"power_consumption_max":13,"weight_kg":0.25,"dimensions_mm":"86×86×30","typical_scenario":["酒店客房","宿舍"],"product_url":"https://www.h3c.com/cn/Products_And_Solution/InterConnect/Products/IP_Wlan/Products/Panel_AP/WiFi_6/WA6320H/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"新华三官网"},{"id":"ruijie_rg-ap850-i","vendor":"ruijie","model_full_name":"RG-AP850-I","product_series":"RG-AP850","form_factor":"indoor-ceiling","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":3550,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":256,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":25,"weight_kg":1.2,"dimensions_mm":"200×200×45","typical_scenario":["企业办公","高教","医疗"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2020-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap850-tr","vendor":"ruijie","model_full_name":"RG-AP850(TR)","product_series":"RG-AP850","form_factor":"indoor-high-density","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":5375,"spatial_streams_2g":4,"spatial_streams_5g":4,"spatial_streams_6g":0,"radio_count":3,"max_users":300,"uplink_port_speed":2500,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":30,"weight_kg":1.3,"dimensions_mm":"210×210×50","typical_scenario":["三射频高密","会议中心","高教"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q2","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap820-ar","vendor":"ruijie","model_full_name":"RG-AP820-AR(V3)","product_series":"RG-AP820","form_factor":"indoor-high-density","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":3550,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":3,"max_users":200,"uplink_port_speed":2500,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":18,"weight_kg":0.8,"dimensions_mm":"190×190×42","typical_scenario":["高密办公","高教教室"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q3","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap180-l-v3","vendor":"ruijie","model_full_name":"RG-AP180-L(V3)","product_series":"RG-AP180","form_factor":"wall-plate","tier_level":5,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":32,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":false,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":40,"wall_plate_downlink_ports":3,"antenna_type":"内置天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":true,"mounting_methods":["86面板嵌入"],"power_consumption_max":8,"weight_kg":0.15,"dimensions_mm":"86×86×28","typical_scenario":["经济型酒店","宿舍"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap680-cd","vendor":"ruijie","model_full_name":"RG-AP680-CD(V3)","product_series":"RG-AP680","form_factor":"outdoor","tier_level":4,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":1775,"spatial_streams_2g":2,"spatial_streams_5g":2,"spatial_streams_6g":0,"radio_count":2,"max_users":100,"uplink_port_speed":1000,"uplink_port_count":1,"has_optical_uplink":false,"poe_support":"802.3af","has_bluetooth":false,"has_iot_expansion":false,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置定向天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":15,"weight_kg":2.0,"dimensions_mm":"250×170×60","typical_scenario":["室外定向覆盖","网桥","点对点"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2021-Q4","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap6920-d","vendor":"ruijie","model_full_name":"RG-AP6920-D","product_series":"RG-AP6900","form_factor":"outdoor","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":8647,"spatial_streams_2g":2,"spatial_streams_5g":4,"spatial_streams_6g":2,"radio_count":3,"max_users":300,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3at","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"IP68","operating_temp_min":-40,"operating_temp_max":65,"wall_plate_downlink_ports":0,"antenna_type":"内置全向天线","has_smart_antenna":false,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["抱杆","壁挂"],"power_consumption_max":45,"weight_kg":5.0,"dimensions_mm":"260×260×110","typical_scenario":["园区","广场","校区"],"product_url":"https://www.ruijie.com.cn/cp/wx/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-ap7176-r","vendor":"ruijie","model_full_name":"RG-AP7176-R(V2)","product_series":"RG-AP7100","form_factor":"indoor-high-density","tier_level":2,"wifi_gen":"Wi-Fi 7","has_6ghz":false,"max_rate_mbps":17982,"spatial_streams_2g":4,"spatial_streams_5g":8,"spatial_streams_6g":4,"radio_count":4,"max_users":800,"uplink_port_speed":10000,"uplink_port_count":2,"has_optical_uplink":true,"poe_support":"802.3bt","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":0,"protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"内置智能天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":true,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["吸顶","壁挂"],"power_consumption_max":65,"weight_kg":2.2,"dimensions_mm":"250×250×60","typical_scenario":["超高密场馆","大型会议中心"],"product_url":"https://www.ruijie.com/en-global/products/wireless/indoor-access-points/rg-ap7176-r-v2","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2025-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"},{"id":"ruijie_rg-am5528-es","vendor":"ruijie","model_full_name":"RG-AM5528(ES) 智分+主机","product_series":"RG-AM5500","form_factor":"distributed","tier_level":3,"wifi_gen":"Wi-Fi 6","has_6ghz":false,"max_rate_mbps":8000,"spatial_streams_2g":48,"spatial_streams_5g":48,"spatial_streams_6g":0,"radio_count":48,"max_users":768,"uplink_port_speed":10000,"uplink_port_count":4,"has_optical_uplink":true,"poe_support":"none","has_bluetooth":true,"has_iot_expansion":true,"distributed_units":24,"distributed_unit_model":"RG-MAP852","protection_rating":"","operating_temp_min":-10,"operating_temp_max":50,"wall_plate_downlink_ports":0,"antenna_type":"远端单元内置天线","has_smart_antenna":true,"mu_mimo":true,"ofdma":true,"mlo_support":false,"security_features":["WPA3","WIDS/WIPS","802.1X"],"cloud_management":true,"fit_mode":true,"fat_mode":false,"mounting_methods":["机架安装"],"power_consumption_max":150,"weight_kg":4.0,"dimensions_mm":"442×220×43.6","typical_scenario":["宿舍","酒店","医院"],"product_url":"https://www.ruijie.com.cn/cp/wx-zfap-xkap/map852sfmt/","datasheet_url":"","is_hot":false,"is_new":false,"status":"active","release_date":"2022-Q1","last_updated":"2026-08-14T12:00:00+08:00","data_source":"锐捷网络官网"}];
+const META = {"version": "1.0", "generated_at": "2026-08-14T12:00:00+08:00", "total_count": 105, "vendor_counts": {"huawei": 35, "h3c": 38, "ruijie": 32}, "last_updated": "2026-08-14T14:00:00+08:00"};
+
+// ============== CONSTANTS ==============
+const VENDOR_NAMES = { huawei: '华为', h3c: 'H3C', ruijie: '锐捷' };
+const VENDOR_COLORS = { huawei: '#dc2626', h3c: '#2563eb', ruijie: '#059669' };
+const FORM_FACTOR_NAMES = {
+    'indoor-ceiling': '室内放装',
+    'indoor-high-density': '室内高密',
+    'outdoor': '室外',
+    'wall-plate': '面板型',
+    'distributed': '智分/分布式'
+};
+const TIER_NAMES = { 1: '旗舰级', 2: '高端级', 3: '主流级', 4: '入门级', 5: '价值级' };
+const WIFI_GEN_ORDER = ['Wi-Fi 5', 'Wi-Fi 6', 'Wi-Fi 6E', 'Wi-Fi 7'];
+const POE_ORDER = ['none', '802.3af', '802.3at', '802.3bt'];
+
+// Scene weight configs
+const SCENE_WEIGHTS = {
+    'indoor-ceiling':      { rate: 0.30, users: 0.25, streams: 0.20, uplink: 0.15, tier: 0.10 },
+    'indoor-high-density': { rate: 0.20, users: 0.35, streams: 0.25, uplink: 0.15, tier: 0.05 },
+    'outdoor':             { rate: 0.25, users: 0.20, streams: 0.15, uplink: 0.20, tier: 0.10, protection: 0.10 },
+    'wall-plate':          { rate: 0.20, users: 0.15, streams: 0.15, uplink: 0.10, tier: 0.10, downlink: 0.30 },
+    'distributed':         { rate: 0.15, users: 0.25, streams: 0.10, uplink: 0.15, tier: 0.05, units: 0.30 }
+};
+
+// State
+let selectedVendors = new Set();
+let need6ghz = false;
+let needOptical = false;
+let needBt = false;
+let needIot = false;
+let currentTab = 'form';
+let browseVendor = 'all';
+let sortKey = 'max_rate_mbps';
+let sortDir = 'desc';
+let compareList = [];
+let allRecs = [];
+let showAllRecs = false;
+
+// ============== INIT ==============
+function init() {
+    document.getElementById('updateTime').innerText = formatDate(META.generated_at);
+    runRecommend();
+    renderBrowseTable();
+}
+
+function formatDate(isoStr) {
+    if (!isoStr) return '--';
+    const d = new Date(isoStr);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ============== TABS ==============
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.getElementById('tabForm').classList.toggle('hidden', tab !== 'form');
+    document.getElementById('tabNlp').classList.toggle('hidden', tab !== 'nlp');
+}
+
+// ============== TOGGLES ==============
+function toggleSwitch(id, varName) {
+    const el = document.getElementById(id);
+    el.classList.toggle('active');
+    window[varName] = el.classList.contains('active');
+}
+
+function toggleVendorChip(vendor) {
+    const chip = document.getElementById('chip_v_' + vendor);
+    if (selectedVendors.has(vendor)) {
+        selectedVendors.delete(vendor);
+        chip.classList.remove('active');
+    } else {
+        selectedVendors.add(vendor);
+        chip.classList.add('active');
+    }
+    runRecommend();
+}
+
+function resetForm() {
+    document.getElementById('f_formFactor').value = 'indoor-ceiling';
+    document.getElementById('f_wifiGen').value = '';
+    document.getElementById('f_users').value = 100;
+    document.getElementById('f_usersVal').innerText = '100';
+    document.getElementById('f_rate').value = '';
+    document.getElementById('f_poe').value = '';
+    document.getElementById('f_uplink').value = '';
+    document.getElementById('f_tier').value = '';
+    selectedVendors.clear();
+    ['huawei','h3c','ruijie'].forEach(v => document.getElementById('chip_v_'+v).classList.remove('active'));
+    need6ghz = needOptical = needBt = needIot = false;
+    ['tog6ghz','togOptical','togBt','togIot'].forEach(id => document.getElementById(id).classList.remove('active'));
+    runRecommend();
+}
+
+// ============== MATCHING ENGINE ==============
+function getRequirements() {
+    return {
+        form_factor: document.getElementById('f_formFactor').value,
+        wifi_gen: document.getElementById('f_wifiGen').value,
+        max_users: parseInt(document.getElementById('f_users').value) || 0,
+        max_rate_mbps: parseInt(document.getElementById('f_rate').value) || 0,
+        poe_required: document.getElementById('f_poe').value,
+        uplink_port_speed: document.getElementById('f_uplink').value === 'optical' ? 0 : parseInt(document.getElementById('f_uplink').value) || 0,
+        need_optical_uplink: document.getElementById('f_uplink').value === 'optical' || needOptical,
+        need_6ghz: need6ghz,
+        need_bluetooth: needBt,
+        need_iot: needIot,
+        tier_level: parseInt(document.getElementById('f_tier').value) || 0,
+        vendors: selectedVendors.size > 0 ? Array.from(selectedVendors) : null
+    };
+}
+
+function hardFilter(products, req) {
+    return products.filter(p => {
+        if (p.status !== 'active') return false;
+        if (req.vendors && req.vendors.length && !req.vendors.includes(p.vendor)) return false;
+        if (req.form_factor && p.form_factor !== req.form_factor) return false;
+        if (req.wifi_gen) {
+            const reqIdx = WIFI_GEN_ORDER.indexOf(req.wifi_gen);
+            const prodIdx = WIFI_GEN_ORDER.indexOf(p.wifi_gen);
+            if (prodIdx < reqIdx) return false;
+        }
+        if (req.need_6ghz && !p.has_6ghz) return false;
+        if (req.poe_required) {
+            const reqIdx = POE_ORDER.indexOf(req.poe_required);
+            const prodIdx = POE_ORDER.indexOf(p.poe_support);
+            if (prodIdx < reqIdx) return false;
+        }
+        if (req.need_optical_uplink && !p.has_optical_uplink) return false;
+        if (req.need_bluetooth && !p.has_bluetooth) return false;
+        if (req.need_iot && !p.has_iot_expansion) return false;
+        if (req.max_rate_mbps && p.max_rate_mbps < req.max_rate_mbps) return false;
+        if (req.max_users && p.max_users < req.max_users) return false;
+        if (req.uplink_port_speed && p.uplink_port_speed < req.uplink_port_speed) return false;
+        return true;
+    });
+}
+
+function calcAdequateScore(actual, required, penaltyRate, maxPenalty) {
+    maxPenalty = maxPenalty || 40;
+    if (actual < required) return 0;
+    if (actual === required) return 100;
+    const ratio = actual / required;
+    const overshoot = ratio - 1;
+    const penalty = Math.min(maxPenalty, overshoot * penaltyRate);
+    return 100 - penalty;
+}
+
+function estimateIdealTier(req) {
+    // Estimate ideal tier based on requirements
+    let tier = 3; // default mainstream
+    if (req.max_rate_mbps >= 8000) tier = 1;
+    else if (req.max_rate_mbps >= 4000) tier = 2;
+    else if (req.max_rate_mbps >= 2000) tier = 3;
+    else if (req.max_rate_mbps >= 1000) tier = 4;
+    else if (req.max_rate_mbps > 0) tier = 5;
+    
+    if (req.max_users >= 500) tier = Math.min(tier, 1);
+    else if (req.max_users >= 250) tier = Math.min(tier, 2);
+    else if (req.max_users >= 100) tier = Math.min(tier, 3);
+    
+    if (req.wifi_gen === 'Wi-Fi 7') tier = Math.min(tier, 2);
+    if (req.uplink_port_speed >= 10000) tier = Math.min(tier, 2);
+    
+    return tier;
+}
+
+function calculateScore(product, req) {
+    const weights = SCENE_WEIGHTS[req.form_factor] || SCENE_WEIGHTS['indoor-ceiling'];
+    let total = 0;
+    let weightSum = 0;
+
+    // Rate score
+    if (req.max_rate_mbps && req.max_rate_mbps > 0) {
+        total += calcAdequateScore(product.max_rate_mbps, req.max_rate_mbps, 30) * weights.rate;
+        weightSum += weights.rate;
+    } else {
+        // No rate requirement - prefer lower tier
+        total += (100 - (product.tier_level - 1) * 20) * weights.rate;
+        weightSum += weights.rate;
+    }
+
+    // Users score
+    if (req.max_users && req.max_users > 0) {
+        total += calcAdequateScore(product.max_users, req.max_users, 20) * weights.users;
+        weightSum += weights.users;
+    } else {
+        total += (100 - (product.tier_level - 1) * 20) * weights.users;
+        weightSum += weights.users;
+    }
+
+    // Streams score (5G)
+    const reqStreams = Math.ceil(Math.max(1, req.max_users / 50));
+    total += calcAdequateScore(product.spatial_streams_5g, reqStreams, 25) * weights.streams;
+    weightSum += weights.streams;
+
+    // Uplink score
+    if (req.uplink_port_speed && req.uplink_port_speed > 0) {
+        total += calcAdequateScore(product.uplink_port_speed, req.uplink_port_speed, 15) * weights.uplink;
+        weightSum += weights.uplink;
+    } else if (!req.need_optical_uplink) {
+        total += 80 * weights.uplink;
+        weightSum += weights.uplink;
+    } else {
+        total += 100 * weights.uplink;
+        weightSum += weights.uplink;
+    }
+
+    // Tier score
+    const idealTier = req.tier_level || estimateIdealTier(req);
+    const tierDiff = Math.abs(product.tier_level - idealTier);
+    const tierScore = Math.max(0, 100 - tierDiff * 25);
+    total += tierScore * weights.tier;
+    weightSum += weights.tier;
+
+    // Special: protection for outdoor
+    if (weights.protection) {
+        const protScore = product.protection_rating === 'IP68' ? 100 : (product.protection_rating === 'IP67' ? 70 : 40);
+        total += protScore * weights.protection;
+        weightSum += weights.protection;
+    }
+
+    // Special: downlink ports for wall-plate
+    if (weights.downlink) {
+        const downScore = Math.min(100, product.wall_plate_downlink_ports * 25);
+        total += downScore * weights.downlink;
+        weightSum += weights.downlink;
+    }
+
+    // Special: distributed units
+    if (weights.units) {
+        const unitScore = Math.min(100, product.distributed_units * 4);
+        total += unitScore * weights.units;
+        weightSum += weights.units;
+    }
+
+    return weightSum > 0 ? Math.round(total / weightSum * 10) / 10 : 0;
+}
+
+function generateMatchReason(product, req, score) {
+    const reasons = [];
+    if (req.max_rate_mbps) {
+        const ratio = product.max_rate_mbps / req.max_rate_mbps;
+        if (ratio < 1.3) reasons.push('速率刚刚好，最经济');
+        else if (ratio < 2) reasons.push('速率充足');
+        else reasons.push('速率余量充足');
+    }
+    if (req.max_users) {
+        const ratio = product.max_users / req.max_users;
+        if (ratio < 1.5) reasons.push('并发能力刚好匹配');
+        else if (ratio < 3) reasons.push('并发用户数充足');
+    }
+    if (product.tier_level <= 2) reasons.push(TIER_NAMES[product.tier_level] + '定位');
+    else reasons.push(TIER_NAMES[product.tier_level] + '性价比之选');
+    if (product.has_smart_antenna) reasons.push('智能天线');
+    if (product.mlo_support) reasons.push('支持MLO');
+    return reasons.slice(0, 3).join(' · ');
+}
+
+function runRecommend() {
+    showAllRecs = false;
+    const req = getRequirements();
+    const filtered = hardFilter(AP_DATA, req);
+    
+    // Score each
+    const scored = filtered.map(p => ({
+        ...p,
+        score: calculateScore(p, req)
+    }));
+
+    // Sort: score desc, tier asc
+    scored.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return a.tier_level - b.tier_level;
+    });
+
+    allRecs = scored;
+
+    // Vendor dedup for top3
+    const top3 = [];
+    const seen = new Set();
+    for (const p of scored) {
+        if (seen.has(p.vendor)) continue;
+        top3.push(p);
+        seen.add(p.vendor);
+        if (top3.length >= 3) break;
+    }
+
+    renderRecommendCards(top3, filtered.length);
+}
+
+function renderRecommendCards(products, totalCandidates) {
+    const grid = document.getElementById('recGrid');
+    const empty = document.getElementById('recEmpty');
+    const moreWrap = document.getElementById('recMoreWrap');
+    document.getElementById('recSummary').innerText = `共筛选出 ${totalCandidates} 款候选`;
+
+    if (products.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        moreWrap.classList.add('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    const displayProducts = showAllRecs ? allRecs : products;
+    moreWrap.classList.toggle('hidden', allRecs.length <= 3 || showAllRecs);
+
+    grid.innerHTML = displayProducts.map((p, i) => {
+        const color = VENDOR_COLORS[p.vendor];
+        const vendorName = VENDOR_NAMES[p.vendor];
+        const rateGbps = (p.max_rate_mbps / 1000).toFixed(p.max_rate_mbps >= 10000 ? 1 : (p.max_rate_mbps % 1000 === 0 ? 0 : 2));
+        const uplinkText = formatUplink(p);
+        const badge = p.is_new ? '<span class="badge badge-new">新品</span>' : (p.is_hot ? '<span class="badge badge-hot">热门</span>' : '');
+        const reason = generateMatchReason(p, getRequirements(), p.score);
+        const scoreColor = p.score >= 85 ? '#059669' : (p.score >= 70 ? '#2563eb' : '#f59e0b');
+
+        return `
+        <div class="rec-card bg-white rounded-xl shadow-sm overflow-hidden border-t-4" style="border-top-color:${color}">
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="text-xs font-medium mb-1" style="color:${color}">${vendorName} · ${p.product_series}</div>
+                        <div class="font-bold text-slate-800 text-base">${p.model_full_name} ${badge}</div>
+                    </div>
+                    <div class="score-ring" style="background:conic-gradient(${scoreColor} ${p.score * 3.6}deg, #e2e8f0 0);">
+                        <div style="width:58px;height:58px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:${scoreColor};font-size:16px;">
+                            ${p.score}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="match-progress mb-4">
+                    <div class="match-progress-fill" style="width:${p.score}%;background:${scoreColor}"></div>
+                </div>
+
+                <div class="text-xs text-slate-500 mb-2 font-medium">核心参数</div>
+                <table class="w-full text-xs mb-3">
+                    <tr><td class="text-slate-500 py-1 w-24">Wi-Fi代际</td><td class="text-slate-800 font-medium">${p.wifi_gen}${p.has_6ghz ? ' (6GHz)' : ''}</td></tr>
+                    <tr><td class="text-slate-500 py-1">整机速率</td><td class="text-slate-800 font-medium">${rateGbps} Gbps</td></tr>
+                    <tr><td class="text-slate-500 py-1">5G空间流</td><td class="text-slate-800 font-medium">${p.spatial_streams_5g} 流</td></tr>
+                    <tr><td class="text-slate-500 py-1">并发用户</td><td class="text-slate-800 font-medium">≤ ${p.max_users} 人</td></tr>
+                    <tr><td class="text-slate-500 py-1">上行端口</td><td class="text-slate-800 font-medium">${uplinkText}</td></tr>
+                    <tr><td class="text-slate-500 py-1">PoE供电</td><td class="text-slate-800 font-medium">${p.poe_support === 'none' ? '仅DC' : p.poe_support}</td></tr>
+                    <tr><td class="text-slate-500 py-1">定位层级</td><td class="text-slate-800 font-medium">${TIER_NAMES[p.tier_level] || '-'}</td></tr>
+                </table>
+
+                <div class="bg-slate-50 rounded-lg p-2.5 mb-4">
+                    <div class="text-xs text-slate-500 mb-1">💡 为什么推荐</div>
+                    <div class="text-xs text-slate-700">${reason}</div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="addToCompare('${p.id}')" class="rec-compare-btn ${compareList.includes(p.id) ? 'added' : ''}" id="rec-btn-${p.id.replace(/[^a-zA-Z0-9]/g,'-')}">
+                        ${compareList.includes(p.id) ? '✓ 已加入对比' : '➕ 加入对比'}
+                    </button>
+                    <a href="${p.product_url}" target="_blank" class="flex-1 text-xs py-2 rounded-lg text-white text-center transition" style="background:${color};opacity:0.9" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
+                        官网详情 →
+                    </a>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+function showMoreRecs() {
+    showAllRecs = true;
+    runRecommend();
+}
+
+function formatUplink(p) {
+    const speedMap = { 1000: 'GE', 2500: '2.5G', 5000: '5G', 10000: '10G' };
+    const speed = speedMap[p.uplink_port_speed] || (p.uplink_port_speed + 'Mbps');
+    const optical = p.has_optical_uplink ? ' + 光口' : '';
+    return `${speed} × ${p.uplink_port_count}${optical}`;
+}
+
+// ============== NLP PARSING ==============
+function parseNLP() {
+    const text = document.getElementById('nlpInput').value.trim();
+    if (!text) { alert('请先输入需求描述'); return; }
+    
+    const parsed = extractParams(text);
+    
+    // Apply to form
+    if (parsed.form_factor) document.getElementById('f_formFactor').value = parsed.form_factor;
+    if (parsed.wifi_gen) document.getElementById('f_wifiGen').value = parsed.wifi_gen;
+    if (parsed.max_users) { document.getElementById('f_users').value = parsed.max_users; document.getElementById('f_usersVal').innerText = parsed.max_users; }
+    if (parsed.max_rate_mbps) document.getElementById('f_rate').value = parsed.max_rate_mbps;
+    if (parsed.poe_required) document.getElementById('f_poe').value = parsed.poe_required;
+    if (parsed.uplink_port_speed) document.getElementById('f_uplink').value = parsed.uplink_port_speed;
+    if (parsed.need_optical) { needOptical = true; document.getElementById('togOptical').classList.add('active'); }
+    if (parsed.need_6ghz) { need6ghz = true; document.getElementById('tog6ghz').classList.add('active'); }
+    if (parsed.vendors && parsed.vendors.length) {
+        selectedVendors = new Set(parsed.vendors);
+        ['huawei','h3c','ruijie'].forEach(v => document.getElementById('chip_v_'+v).classList.toggle('active', selectedVendors.has(v)));
+    }
+    
+    // Show parsed chips
+    const chips = [];
+    if (parsed.form_factor) chips.push(`<span class="parsed-chip">场景：${FORM_FACTOR_NAMES[parsed.form_factor]}</span>`);
+    if (parsed.wifi_gen) chips.push(`<span class="parsed-chip">${parsed.wifi_gen}</span>`);
+    if (parsed.max_users) chips.push(`<span class="parsed-chip">${parsed.max_users}人</span>`);
+    if (parsed.max_rate_mbps) chips.push(`<span class="parsed-chip">${parsed.max_rate_mbps}Mbps</span>`);
+    if (parsed.poe_required) chips.push(`<span class="parsed-chip">${parsed.poe_required}</span>`);
+    if (parsed.need_optical) chips.push(`<span class="parsed-chip">光口</span>`);
+    if (parsed.need_6ghz) chips.push(`<span class="parsed-chip">6GHz</span>`);
+    if (parsed.vendors && parsed.vendors.length) chips.push(`<span class="parsed-chip">厂商：${parsed.vendors.map(v=>VENDOR_NAMES[v]).join('/')}</span>`);
+    
+    document.getElementById('nlpParsed').classList.remove('hidden');
+    document.getElementById('nlpParsedChips').innerHTML = chips.join('');
+}
+
+function applyNLPAndRecommend() {
+    parseNLP();
+    switchTab('form');
+    runRecommend();
+    document.getElementById('recommend').scrollIntoView({ behavior: 'smooth' });
+}
+
+function extractParams(text) {
+    const result = {};
+    const t = text.toLowerCase();
+
+    // Form factor / scenario
+    if (/室外|户外|园区|广场/.test(text)) result.form_factor = 'outdoor';
+    else if (/高密|场馆|会议中心|礼堂|体育馆|超高密/.test(text)) result.form_factor = 'indoor-high-density';
+    else if (/面板|墙面|酒店|客房|宿舍|86|墙壁/.test(text)) result.form_factor = 'wall-plate';
+    else if (/智分|分布式|零漫游|医疗|馈线/.test(text)) result.form_factor = 'distributed';
+    else if (/室内放装|吸顶|放装|办公/.test(text)) result.form_factor = 'indoor-ceiling';
+    else if (/室内/.test(text)) result.form_factor = 'indoor-ceiling';
+
+    // Wi-Fi generation
+    if (/wi-?fi\s*7|wifi7|wi-fi7/.test(t)) result.wifi_gen = 'Wi-Fi 7';
+    else if (/wi-?fi\s*6e|wifi6e|wi-fi6e/.test(t)) result.wifi_gen = 'Wi-Fi 6E';
+    else if (/wi-?fi\s*6|wifi6|wi-fi6|wifi 6/.test(t)) result.wifi_gen = 'Wi-Fi 6';
+
+    // Users
+    const userMatch = text.match(/(\d+)\s*(人|个用户|用户|并发|同时接入|接入)/);
+    if (userMatch) result.max_users = Math.min(1000, Math.max(10, parseInt(userMatch[1])));
+
+    // Rate
+    const rateGbpsMatch = text.match(/(\d+(?:\.\d+)?)\s*g(?:bps)?/i);
+    if (rateGbpsMatch) {
+        result.max_rate_mbps = Math.round(parseFloat(rateGbpsMatch[1]) * 1000);
+    } else {
+        const rateMbpsMatch = text.match(/(\d+)\s*m(?:bps)?/i);
+        if (rateMbpsMatch) result.max_rate_mbps = parseInt(rateMbpsMatch[1]);
+    }
+
+    // PoE
+    if (/802\.3bt|bt\s*供电|四对|poe\+\+/.test(t)) result.poe_required = '802.3bt';
+    else if (/802\.3at|at\s*供电|poe\+|poe plus/.test(t)) result.poe_required = '802.3at';
+    else if (/802\.3af|af\s*供电|标准poe/.test(t)) result.poe_required = '802.3af';
+    else if (/poe供电|poe|以太供电/.test(t)) result.poe_required = '802.3af';
+
+    // Uplink / optical
+    if (/万兆|10g上行|10ge/.test(t)) result.uplink_port_speed = '10000';
+    else if (/5g上行/.test(t)) result.uplink_port_speed = '5000';
+    else if (/2\.5g上行|2.5g/.test(t)) result.uplink_port_speed = '2500';
+    else if (/千兆|ge上行|1g上行/.test(t)) result.uplink_port_speed = '1000';
+    
+    if (/光口|sfp|光纤|光上行/.test(t)) result.need_optical = true;
+
+    // 6GHz
+    if (/6ghz|6g频段|6g频/.test(t)) result.need_6ghz = true;
+
+    // Vendors
+    const vendors = [];
+    if (/华为|huawei/.test(t)) vendors.push('huawei');
+    if (/h3c|新华三|华三/.test(t)) vendors.push('h3c');
+    if (/锐捷|ruijie/.test(t)) vendors.push('ruijie');
+    if (vendors.length) result.vendors = vendors;
+
+    return result;
+}
+
+// ============== BROWSE TABLE ==============
+function browseVendor(vendor) {
+    browseVendor = vendor;
+    ['all','huawei','h3c','ruijie'].forEach(v => {
+        document.getElementById('b_v_' + v).classList.toggle('active', v === vendor);
+    });
+    renderBrowseTable();
+}
+
+function getFilteredBrowse() {
+    let list = AP_DATA.filter(p => p.status === 'active');
+    if (browseVendor !== 'all') list = list.filter(p => p.vendor === browseVendor);
+    const form = document.getElementById('b_form').value;
+    if (form) list = list.filter(p => p.form_factor === form);
+    const wifi = document.getElementById('b_wifi').value;
+    if (wifi) list = list.filter(p => p.wifi_gen === wifi);
+    const tier = document.getElementById('b_tier').value;
+    if (tier) list = list.filter(p => p.tier_level === parseInt(tier));
+    const search = document.getElementById('b_search').value.trim().toLowerCase();
+    if (search) {
+        list = list.filter(p => 
+            p.model_full_name.toLowerCase().includes(search) ||
+            p.product_series.toLowerCase().includes(search)
+        );
+    }
+    return list;
+}
+
+function sortTable(key) {
+    if (sortKey === key) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortKey = key;
+        sortDir = 'desc';
+    }
+    renderBrowseTable();
+}
+
+function renderBrowseTable() {
+    let list = getFilteredBrowse();
+    
+    // Sort
+    list.sort((a, b) => {
+        let va = a[sortKey];
+        let vb = b[sortKey];
+        if (sortKey === 'wifi_gen') {
+            va = WIFI_GEN_ORDER.indexOf(va);
+            vb = WIFI_GEN_ORDER.indexOf(vb);
+        } else if (sortKey === 'poe_support') {
+            va = POE_ORDER.indexOf(va);
+            vb = POE_ORDER.indexOf(vb);
+        } else if (sortKey === 'vendor' || sortKey === 'model_full_name' || sortKey === 'form_factor') {
+            va = String(va);
+            vb = String(vb);
+            return sortDir === 'asc' ? va.localeCompare(vb, 'zh') : vb.localeCompare(va, 'zh');
+        }
+        if (typeof va === 'number') {
+            return sortDir === 'asc' ? va - vb : vb - va;
+        }
+        return sortDir === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+
+    const tbody = document.getElementById('browseBody');
+    document.getElementById('browseCount').innerText = `显示 ${list.length} / ${AP_DATA.length} 款`;
+
+    tbody.innerHTML = list.map(p => {
+        const checked = compareList.includes(p.id) ? 'checked' : '';
+        const badges = [];
+        if (p.is_new) badges.push('<span class="badge badge-new">新品</span>');
+        if (p.is_hot) badges.push('<span class="badge badge-hot">热门</span>');
+        const rateGbps = p.max_rate_mbps >= 1000 ? (p.max_rate_mbps/1000).toFixed(p.max_rate_mbps >= 10000 ? 1 : (p.max_rate_mbps % 1000 === 0 ? 0 : 2)) + 'G' : p.max_rate_mbps + 'M';
+        const uplinkSpeed = p.uplink_port_speed >= 1000 ? (p.uplink_port_speed/1000) + 'G' : p.uplink_port_speed + 'M';
+        const optical = p.has_optical_uplink ? ' +光' : '';
+
+        return `
+        <tr class="vendor-row-${p.vendor} ${compareList.includes(p.id) ? 'selected' : ''}">
+            <td class="checkbox-cell"><input type="checkbox" ${checked} onchange="toggleCompare('${p.id}', this)"></td>
+            <td><span class="vendor-badge" style="background:${VENDOR_COLORS[p.vendor]};color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">${VENDOR_NAMES[p.vendor]}</span></td>
+            <td><a href="${p.product_url}" target="_blank" class="text-blue-700 hover:underline font-medium">${p.model_full_name}</a></td>
+            <td>${p.wifi_gen}${p.has_6ghz ? ' <span class="text-xs text-purple-600">+6G</span>' : ''}</td>
+            <td class="text-xs">${FORM_FACTOR_NAMES[p.form_factor] || '-'}</td>
+            <td><span class="text-xs" style="color:${getTierColor(p.tier_level)}">${TIER_NAMES[p.tier_level] || '-'}</span></td>
+            <td class="font-mono text-xs">${rateGbps}</td>
+            <td class="text-center">${p.spatial_streams_5g}</td>
+            <td class="text-center">${p.max_users}</td>
+            <td class="text-xs">${uplinkSpeed}×${p.uplink_port_count}${optical}</td>
+            <td class="text-xs">${p.poe_support === 'none' ? 'DC' : p.poe_support.replace('802.3','')}</td>
+            <td>${badges.join(' ')}</td>
+            <td class="text-center">
+                <button class="row-compare-btn ${compareList.includes(p.id) ? 'added' : ''}" onclick="toggleRowCompare('${p.id}')">
+                    ${compareList.includes(p.id) ? '✓ 已加入' : '➕ 加入对比'}
+                </button>
+            </td>
+        </tr>
+        `;
+    }).join('');
+}
+
+function getTierColor(tier) {
+    return ['', '#dc2626', '#ea580c', '#2563eb', '#0891b2', '#6b7280'][tier] || '#6b7280';
+}
+
+// ============== COMPARE ==============
+function addToCompare(id) {
+    if (compareList.includes(id)) {
+        // 已加入则移除（推荐卡片支持切换）
+        removeFromCompare(id);
+        return;
+    }
+    if (compareList.length >= 4) {
+        alert('最多对比4款产品，请先移除一些');
+        return;
+    }
+    compareList.push(id);
+    updateCompareBar();
+    renderBrowseTable();
+    updateRecCompareButtons();
+    // 轻量提示：不跳转，让用户知道已加入
+    showFloatTip('已加入对比，右上角可查看');
+}
+
+function removeFromCompare(id) {
+    compareList = compareList.filter(x => x !== id);
+    updateCompareBar();
+    renderBrowseTable();
+    updateRecCompareButtons();
+}
+
+function toggleRowCompare(id) {
+    if (compareList.includes(id)) {
+        removeFromCompare(id);
+    } else {
+        if (compareList.length >= 4) {
+            alert('最多对比4款产品，请先移除一些');
+            return;
+        }
+        compareList.push(id);
+        updateCompareBar();
+        renderBrowseTable();
+        updateRecCompareButtons();
+    }
+}
+
+function toggleCompare(id, checkbox) {
+    if (checkbox.checked) {
+        if (compareList.length >= 4) {
+            checkbox.checked = false;
+            alert('最多对比4款产品');
+            return;
+        }
+        compareList.push(id);
+    } else {
+        compareList = compareList.filter(x => x !== id);
+    }
+    updateCompareBar();
+    const tr = checkbox.closest('tr');
+    if (tr) tr.classList.toggle('selected', checkbox.checked);
+    // 同步更新操作按钮和推荐卡片
+    renderBrowseTable();
+    updateRecCompareButtons();
+}
+
+function toggleAllChecks(checkbox) {
+    const rows = document.querySelectorAll('#browseBody input[type="checkbox"]');
+    if (checkbox.checked) {
+        rows.forEach(cb => {
+            if (compareList.length < 4 && !cb.checked) {
+                cb.checked = true;
+                const idMatch = cb.onchange.toString().match(/'([^']+)'/);
+                if (idMatch && idMatch[1]) compareList.push(idMatch[1]);
+            }
+        });
+    } else {
+        compareList = [];
+        rows.forEach(cb => cb.checked = false);
+    }
+    updateCompareBar();
+    renderBrowseTable();
+    updateRecCompareButtons();
+}
+
+function updateCompareBar() {
+    // 表格内对比栏
+    const bar = document.getElementById('compareBar');
+    const count = document.getElementById('compareCount');
+    const btn = document.getElementById('compareBtn');
+    count.innerText = compareList.length;
+    bar.classList.toggle('hidden', compareList.length === 0);
+    btn.disabled = compareList.length < 2;
+    
+    // 顶部悬浮对比栏
+    const floatBar = document.getElementById('floatingCompareBar');
+    const floatCount = document.getElementById('fcbCount');
+    const floatBtn = document.getElementById('fcbBtn');
+    if (floatBar && floatCount && floatBtn) {
+        floatCount.innerText = compareList.length;
+        floatBar.classList.toggle('hidden-bar', compareList.length === 0);
+        floatBtn.disabled = compareList.length < 2;
+    }
+}
+
+function clearCompare() {
+    compareList = [];
+    updateCompareBar();
+    renderBrowseTable();
+    updateRecCompareButtons();
+    // 同步取消全选框
+    const checkAll = document.getElementById('checkAll');
+    if (checkAll) checkAll.checked = false;
+}
+
+// 更新推荐卡片中的对比按钮状态
+function updateRecCompareButtons() {
+    const grid = document.getElementById('recGrid');
+    if (!grid) return;
+    const cards = grid.querySelectorAll('.rec-card');
+    cards.forEach(card => {
+        const btn = card.querySelector('.rec-compare-btn');
+        if (!btn) return;
+        // 从 onclick 属性中提取 id
+        const onclickStr = btn.getAttribute('onclick') || '';
+        const idMatch = onclickStr.match(/'([^']+)'/);
+        if (!idMatch) return;
+        const id = idMatch[1];
+        if (compareList.includes(id)) {
+            btn.classList.add('added');
+            btn.innerText = '✓ 已加入对比';
+        } else {
+            btn.classList.remove('added');
+            btn.innerText = '➕ 加入对比';
+        }
+    });
+}
+
+// 轻量浮动提示
+let tipTimer = null;
+function showFloatTip(msg) {
+    let tip = document.getElementById('floatTip');
+    if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'floatTip';
+        tip.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.9);color:white;padding:10px 20px;border-radius:8px;font-size:13px;z-index:2000;opacity:0;transition:opacity 0.3s;pointer-events:none;backdrop-filter:blur(4px);box-shadow:0 4px 20px rgba(0,0,0,0.2)';
+        document.body.appendChild(tip);
+    }
+    tip.innerText = msg;
+    tip.style.opacity = '1';
+    if (tipTimer) clearTimeout(tipTimer);
+    tipTimer = setTimeout(() => {
+        tip.style.opacity = '0';
+    }, 2000);
+}
+
+function showCompareModal() {
+    if (compareList.length < 2) return;
+    const products = compareList.map(id => AP_DATA.find(p => p.id === id)).filter(Boolean);
+    const body = document.getElementById('compareModalBody');
+    
+    const allFields = [
+        { key: 'vendor', label: '厂商', type: 'vendor' },
+        { key: 'product_series', label: '产品系列', type: 'text' },
+        { key: 'form_factor', label: '产品形态', type: 'form_factor' },
+        { key: 'tier_level', label: '定位层级', type: 'tier' },
+        { key: 'wifi_gen', label: 'Wi-Fi代际', type: 'text' },
+        { key: 'has_6ghz', label: '支持6GHz', type: 'bool' },
+        { key: 'max_rate_mbps', label: '整机最大速率', type: 'rate' },
+        { key: 'spatial_streams_2g', label: '2.4G空间流数', type: 'number' },
+        { key: 'spatial_streams_5g', label: '5G空间流数', type: 'number' },
+        { key: 'spatial_streams_6g', label: '6G空间流数', type: 'number' },
+        { key: 'radio_count', label: '射频数量', type: 'number' },
+        { key: 'max_users', label: '最大并发用户数', type: 'number' },
+        { key: 'uplink_port_speed', label: '上行端口速率', type: 'uplink_speed' },
+        { key: 'uplink_port_count', label: '上行端口数量', type: 'number' },
+        { key: 'has_optical_uplink', label: '光口上行', type: 'bool' },
+        { key: 'poe_support', label: 'PoE支持', type: 'poe' },
+        { key: 'has_bluetooth', label: '蓝牙', type: 'bool' },
+        { key: 'has_iot_expansion', label: 'IoT扩展', type: 'bool' },
+        { key: 'antenna_type', label: '天线类型', type: 'text' },
+        { key: 'has_smart_antenna', label: '智能天线', type: 'bool' },
+        { key: 'mu_mimo', label: 'MU-MIMO', type: 'bool' },
+        { key: 'ofdma', label: 'OFDMA', type: 'bool' },
+        { key: 'mlo_support', label: 'MLO多链路', type: 'bool' },
+        { key: 'protection_rating', label: '防护等级', type: 'text' },
+        { key: 'operating_temp_min', label: '最低工作温度', type: 'temp' },
+        { key: 'operating_temp_max', label: '最高工作温度', type: 'temp' },
+        { key: 'wall_plate_downlink_ports', label: '面板下行端口数', type: 'number' },
+        { key: 'distributed_units', label: '分布式下连单元数', type: 'number' },
+        { key: 'cloud_management', label: '云管理', type: 'bool' },
+        { key: 'fit_mode', label: 'Fit模式', type: 'bool' },
+        { key: 'fat_mode', label: 'Fat模式', type: 'bool' },
+        { key: 'power_consumption_max', label: '最大功耗(W)', type: 'number' },
+        { key: 'weight_kg', label: '重量(kg)', type: 'number' },
+        { key: 'dimensions_mm', label: '尺寸(mm)', type: 'text' },
+        { key: 'mounting_methods', label: '安装方式', type: 'array' },
+        { key: 'security_features', label: '安全特性', type: 'array' },
+        { key: 'typical_scenario', label: '典型场景', type: 'array' },
+        { key: 'release_date', label: '发布时间', type: 'text' },
+    ];
+
+    function formatValue(p, field) {
+        const v = p[field.key];
+        switch (field.type) {
+            case 'vendor': return `<span style="color:${VENDOR_COLORS[p.vendor]};font-weight:600">${VENDOR_NAMES[p.vendor]}</span>`;
+            case 'form_factor': return FORM_FACTOR_NAMES[v] || '-';
+            case 'tier': return TIER_NAMES[v] || '-';
+            case 'bool': return v ? '<span class="text-green-600">✓</span>' : '<span class="text-slate-300">—</span>';
+            case 'rate': return v >= 1000 ? (v/1000).toFixed(v>=10000?1:2) + ' Gbps' : v + ' Mbps';
+            case 'uplink_speed': return v >= 1000 ? (v/1000) + ' Gbps' : v + ' Mbps';
+            case 'poe': return v === 'none' ? '仅DC' : v;
+            case 'temp': return v + '°C';
+            case 'array': return Array.isArray(v) ? v.join('、') : '-';
+            case 'number': return v === 0 || !v ? '-' : v;
+            default: return v || '-';
+        }
+    }
+
+    function isDiff(field) {
+        const vals = products.map(p => {
+            const v = p[field.key];
+            return field.type === 'array' ? (v||[]).join(',') : v;
+        });
+        const first = vals[0];
+        return vals.some(v => v !== first);
+    }
+
+    const headerRow = `<tr><th class="param-label">参数</th>${products.map(p => `<th style="min-width:180px"><div style="color:${VENDOR_COLORS[p.vendor]};font-size:11px;margin-bottom:2px">${VENDOR_NAMES[p.vendor]}</div><div class="text-sm">${p.model_full_name}</div></th>`).join('')}</tr>`;
+
+    let diffCount = 0;
+    const rows = allFields.map(f => {
+        const diff = isDiff(f);
+        if (diff) diffCount++;
+        return `<tr class="${diff ? 'diff-row' : ''}">
+            <td class="param-label">${f.label}${diff ? ' <span style="float:right;font-size:10px;background:#f59e0b;color:white;padding:1px 5px;border-radius:3px;font-weight:600">差异</span>' : ''}</td>
+            ${products.map(p => `<td>${formatValue(p, f)}</td>`).join('')}
+        </tr>`;
+    }).join('');
+
+    body.innerHTML = `<table class="compare-table"><thead>${headerRow}</thead><tbody>${rows}</tbody></table>`;
+    
+    // 更新差异计数徽章
+    const diffBadge = document.getElementById('diffCountBadge');
+    if (diffBadge) {
+        if (diffCount > 0) {
+            diffBadge.style.display = 'inline-block';
+            diffBadge.innerText = diffCount + ' 项差异';
+        } else {
+            diffBadge.style.display = 'none';
+        }
+    }
+    
+    document.getElementById('compareModal').classList.add('show');
+}
+
+// 复制对比结果为文本
+function copyCompareResult() {
+    if (compareList.length < 2) return;
+    const products = compareList.map(id => AP_DATA.find(p => p.id === id)).filter(Boolean);
+    
+    const allFields = [
+        { key: 'vendor', label: '厂商', type: 'vendor' },
+        { key: 'model_full_name', label: '型号', type: 'text' },
+        { key: 'product_series', label: '产品系列', type: 'text' },
+        { key: 'form_factor', label: '产品形态', type: 'form_factor' },
+        { key: 'tier_level', label: '定位层级', type: 'tier' },
+        { key: 'wifi_gen', label: 'Wi-Fi代际', type: 'text' },
+        { key: 'has_6ghz', label: '支持6GHz', type: 'bool' },
+        { key: 'max_rate_mbps', label: '整机最大速率', type: 'rate' },
+        { key: 'spatial_streams_2g', label: '2.4G空间流数', type: 'number' },
+        { key: 'spatial_streams_5g', label: '5G空间流数', type: 'number' },
+        { key: 'spatial_streams_6g', label: '6G空间流数', type: 'number' },
+        { key: 'radio_count', label: '射频数量', type: 'number' },
+        { key: 'max_users', label: '最大并发用户数', type: 'number' },
+        { key: 'uplink_port_speed', label: '上行端口速率', type: 'uplink_speed' },
+        { key: 'uplink_port_count', label: '上行端口数量', type: 'number' },
+        { key: 'has_optical_uplink', label: '光口上行', type: 'bool' },
+        { key: 'poe_support', label: 'PoE支持', type: 'poe' },
+        { key: 'has_bluetooth', label: '蓝牙', type: 'bool' },
+        { key: 'has_iot_expansion', label: 'IoT扩展', type: 'bool' },
+        { key: 'antenna_type', label: '天线类型', type: 'text' },
+        { key: 'has_smart_antenna', label: '智能天线', type: 'bool' },
+        { key: 'mu_mimo', label: 'MU-MIMO', type: 'bool' },
+        { key: 'ofdma', label: 'OFDMA', type: 'bool' },
+        { key: 'mlo_support', label: 'MLO多链路', type: 'bool' },
+        { key: 'protection_rating', label: '防护等级', type: 'text' },
+        { key: 'operating_temp_min', label: '最低工作温度', type: 'temp' },
+        { key: 'operating_temp_max', label: '最高工作温度', type: 'temp' },
+        { key: 'wall_plate_downlink_ports', label: '面板下行端口数', type: 'number' },
+        { key: 'distributed_units', label: '分布式下连单元数', type: 'number' },
+        { key: 'cloud_management', label: '云管理', type: 'bool' },
+        { key: 'fit_mode', label: 'Fit模式', type: 'bool' },
+        { key: 'fat_mode', label: 'Fat模式', type: 'bool' },
+        { key: 'power_consumption_max', label: '最大功耗(W)', type: 'number' },
+        { key: 'weight_kg', label: '重量(kg)', type: 'number' },
+        { key: 'dimensions_mm', label: '尺寸(mm)', type: 'text' },
+        { key: 'mounting_methods', label: '安装方式', type: 'array' },
+        { key: 'security_features', label: '安全特性', type: 'array' },
+        { key: 'typical_scenario', label: '典型场景', type: 'array' },
+        { key: 'release_date', label: '发布时间', type: 'text' },
+    ];
+
+    function fmtVal(p, field) {
+        const v = p[field.key];
+        switch (field.type) {
+            case 'vendor': return VENDOR_NAMES[p.vendor];
+            case 'form_factor': return FORM_FACTOR_NAMES[v] || '-';
+            case 'tier': return TIER_NAMES[v] || '-';
+            case 'bool': return v ? '是' : '否';
+            case 'rate': return v >= 1000 ? (v/1000).toFixed(v>=10000?1:2) + ' Gbps' : v + ' Mbps';
+            case 'uplink_speed': return v >= 1000 ? (v/1000) + ' Gbps' : v + ' Mbps';
+            case 'poe': return v === 'none' ? '仅DC' : v;
+            case 'temp': return v + '°C';
+            case 'array': return Array.isArray(v) ? v.join('、') : '-';
+            case 'number': return v === 0 || !v ? '-' : v;
+            default: return v || '-';
+        }
+    }
+
+    let text = 'AP型号参数对比表\n';
+    text += '生成时间：' + new Date().toLocaleString('zh-CN') + '\n';
+    text += '对比型号：' + products.map(p => p.model_full_name).join(' / ') + '\n';
+    text += '='.repeat(60) + '\n\n';
+    
+    allFields.forEach(f => {
+        text += `【${f.label}】\n`;
+        products.forEach(p => {
+            text += `  ${VENDOR_NAMES[p.vendor]} ${p.model_full_name}：${fmtVal(p, f)}\n`;
+        });
+        text += '\n';
+    });
+
+    text += '— 数据来源：华为/H3C/锐捷官网，仅供选型参考 —\n';
+
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyCompareBtn');
+        const orig = btn.innerText;
+        btn.innerText = '✓ 已复制到剪贴板';
+        btn.style.background = '#dcfce7';
+        btn.style.color = '#16a34a';
+        btn.style.borderColor = '#86efac';
+        setTimeout(() => {
+            btn.innerText = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+        }, 2000);
+    }).catch(() => {
+        alert('复制失败，请手动选择文本复制');
+    });
+}
+
+function closeCompareModal() {
+    document.getElementById('compareModal').classList.remove('show');
+}
+
+// ESC to close modal
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeCompareModal();
+});
+
+// Init
+init();
+</script>
+
+</body>
+</html>
