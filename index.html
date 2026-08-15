@@ -1290,7 +1290,7 @@ function renderRecommendCards(products, totalCandidates) {
                     <tr><td class="text-slate-500 py-1">并发用户</td><td class="text-slate-800 font-medium">≤ ${p.max_users} 人</td></tr>
                     <tr><td class="text-slate-500 py-1">上行端口</td><td class="text-slate-800 font-medium">${uplinkText}</td></tr>
                     <tr><td class="text-slate-500 py-1">下行端口</td><td class="text-slate-800 font-medium">${formatDownlink(p)}</td></tr>
-                    <tr><td class="text-slate-500 py-1">PoE供电</td><td class="text-slate-800 font-medium">${p.poe_support === 'none' ? '仅DC' : p.poe_support}</td></tr>
+                    <tr><td class="text-slate-500 py-1">PoE供电</td><td class="text-slate-800 font-medium">${formatPoE(p)}</td></tr>
                     <tr><td class="text-slate-500 py-1">定位层级</td><td class="text-slate-800 font-medium">${TIER_NAMES[p.tier_level] || '-'}</td></tr>
                 </table>
 
@@ -1327,6 +1327,16 @@ function formatUplink(p) {
     if (elec > 0) parts.push(elec + '×' + speed + '电');
     if (opt > 0) parts.push(opt + '×' + speed + '光');
     return parts.join(' + ') || (speed + '×' + (p.uplink_port_count || 0));
+}
+
+function formatPoE(p) {
+    if (p.poe_support === 'none' || !p.poe_support) return '仅DC';
+    const map = {
+        '802.3af': 'PoE（15.4W）',
+        '802.3at': 'PoE+（30W）',
+        '802.3bt': 'PoE++（90W）',
+    };
+    return map[p.poe_support] || p.poe_support;
 }
 
 function formatDownlink(p) {
@@ -1529,7 +1539,7 @@ function renderBrowseTable() {
             <td class="text-center">${p.max_users}</td>
             <td class="text-xs">${formatUplink(p)}</td>
             <td class="text-xs">${formatDownlink(p)}</td>
-            <td class="text-xs">${p.poe_support === 'none' ? 'DC' : p.poe_support.replace('802.3','')}</td>
+            <td class="text-xs">${formatPoE(p)}</td>
             <td>${badges.join(' ')}</td>
             <td class="text-center">
                 <button class="row-compare-btn ${compareList.includes(p.id) ? 'added' : ''}" onclick="toggleRowCompare('${p.id}')">
