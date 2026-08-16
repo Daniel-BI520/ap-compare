@@ -1224,17 +1224,20 @@ function runRecommend() {
 
     allRecs = scored;
 
-    // Vendor dedup for top3
-    const top3 = [];
-    const seen = new Set();
+    // 每厂商Top3推荐（与交换机推荐逻辑一致）
+    const vendorTop3 = [];
+    const vendorCount = {};
     for (const p of scored) {
-        if (seen.has(p.vendor)) continue;
-        top3.push(p);
-        seen.add(p.vendor);
-        if (top3.length >= 3) break;
+        const v = p.vendor;
+        vendorCount[v] = (vendorCount[v] || 0) + 1;
+        if (vendorCount[v] <= 3) {
+            vendorTop3.push(p);
+        }
+        // 三厂商各取3款，共最多9款
+        if (vendorTop3.length >= 9) break;
     }
 
-    renderRecommendCards(top3, filtered.length);
+    renderRecommendCards(vendorTop3, filtered.length);
 }
 
 function renderRecommendCards(products, totalCandidates) {
