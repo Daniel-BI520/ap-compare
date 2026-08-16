@@ -884,11 +884,11 @@ const POE_ORDER = ['none', '802.3af', '802.3at', '802.3bt'];
 
 // Scene weight configs
 const SCENE_WEIGHTS = {
-    'indoor-ceiling':      { rate: 0.25, users: 0.22, streams: 0.18, uplink: 0.13, tier: 0.22 },
-    'indoor-high-density': { rate: 0.18, users: 0.30, streams: 0.22, uplink: 0.12, tier: 0.18 },
-    'outdoor':             { rate: 0.22, users: 0.18, streams: 0.13, uplink: 0.15, tier: 0.17, protection: 0.15 },
-    'wall-plate':          { rate: 0.18, users: 0.13, streams: 0.12, uplink: 0.09, tier: 0.18, downlink: 0.30 },
-    'distributed':         { rate: 0.13, users: 0.22, streams: 0.09, uplink: 0.12, tier: 0.14, units: 0.30 }
+    'indoor-ceiling':      { rate: 0.30, users: 0.25, streams: 0.20, uplink: 0.15, tier: 0.10 },
+    'indoor-high-density': { rate: 0.20, users: 0.35, streams: 0.25, uplink: 0.15, tier: 0.05 },
+    'outdoor':             { rate: 0.25, users: 0.20, streams: 0.15, uplink: 0.20, tier: 0.10, protection: 0.10 },
+    'wall-plate':          { rate: 0.20, users: 0.15, streams: 0.15, uplink: 0.10, tier: 0.10, downlink: 0.30 },
+    'distributed':         { rate: 0.15, users: 0.25, streams: 0.10, uplink: 0.15, tier: 0.05, units: 0.30 }
 };
 
 // State
@@ -1006,33 +1006,30 @@ function hardFilter(products, req) {
 }
 
 function calcAdequateScore(actual, required, penaltyRate, maxPenalty) {
-    maxPenalty = maxPenalty || 65;
+    maxPenalty = maxPenalty || 40;
     if (actual < required) return 0;
     if (actual === required) return 100;
     const ratio = actual / required;
     const overshoot = ratio - 1;
-    // 非线性惩罚：超过越多惩罚越重，避免高端型号碾压
-    const penalty = Math.min(maxPenalty, overshoot * penaltyRate * (1 + overshoot * 0.5));
-    return Math.round(100 - penalty);
+    const penalty = Math.min(maxPenalty, overshoot * penaltyRate);
+    return 100 - penalty;
 }
 
 function estimateIdealTier(req) {
-    // Estimate ideal tier based on requirements - 基于够用就好原则
+    // Estimate ideal tier based on requirements
     let tier = 3; // default mainstream
-    if (req.max_rate_mbps >= 15000) tier = 1;
-    else if (req.max_rate_mbps >= 6000) tier = 2;
-    else if (req.max_rate_mbps >= 3000) tier = 3;
-    else if (req.max_rate_mbps >= 1500) tier = 4;
+    if (req.max_rate_mbps >= 8000) tier = 1;
+    else if (req.max_rate_mbps >= 4000) tier = 2;
+    else if (req.max_rate_mbps >= 2000) tier = 3;
+    else if (req.max_rate_mbps >= 1000) tier = 4;
     else if (req.max_rate_mbps > 0) tier = 5;
     
-    if (req.max_users >= 600) tier = Math.min(tier, 1);
-    else if (req.max_users >= 300) tier = Math.min(tier, 2);
-    else if (req.max_users >= 128) tier = Math.min(tier, 3);
-    else if (req.max_users >= 64) tier = Math.min(tier, 4);
+    if (req.max_users >= 500) tier = Math.min(tier, 1);
+    else if (req.max_users >= 250) tier = Math.min(tier, 2);
+    else if (req.max_users >= 100) tier = Math.min(tier, 3);
     
     if (req.wifi_gen === 'Wi-Fi 7') tier = Math.min(tier, 2);
     if (req.uplink_port_speed >= 10000) tier = Math.min(tier, 2);
-    if (req.uplink_port_speed >= 2500) tier = Math.min(tier, 3);
     
     return tier;
 }
@@ -1044,7 +1041,7 @@ function calculateScore(product, req) {
 
     // Rate score
     if (req.max_rate_mbps && req.max_rate_mbps > 0) {
-        total += calcAdequateScore(product.max_rate_mbps, req.max_rate_mbps, 50) * weights.rate;
+        total += calcAdequateScore(product.max_rate_mbps, req.max_rate_mbps, 30) * weights.rate;
         weightSum += weights.rate;
     } else {
         // No rate requirement - prefer lower tier
